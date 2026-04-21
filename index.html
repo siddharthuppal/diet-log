@@ -117,8 +117,10 @@ input[type=range]{width:100%;margin:0 0 10px;accent-color:var(--purple);cursor:p
 <div class="tabbar">
   <button class="active" id="tab-btn-today" onclick="showTab('today',this)">Today</button>
   <button id="tab-btn-month" onclick="showTab('month',this)">Monthly</button>
+  <button id="tab-btn-diet" onclick="showTab('diet',this)">Diet</button>
+  <button id="tab-btn-grocery" onclick="showTab('grocery',this)">Grocery</button>
 </div>
-
+ 
 <div class="page active" id="page-today">
 <div class="hdr">
   <div class="hdr-l"><div class="day" id="day-name">—</div><div class="dt" id="date-str">—</div></div>
@@ -156,7 +158,7 @@ input[type=range]{width:100%;margin:0 0 10px;accent-color:var(--purple);cursor:p
 <button class="rbtn" onclick="resetToday()">Reset today</button>
 <div class="toast" id="toast">Saved</div>
 </div>
-
+ 
 <div class="page" id="page-month">
 <div class="cal-hdr">
   <div class="mtitle" id="mtitle">—</div>
@@ -185,7 +187,7 @@ input[type=range]{width:100%;margin:0 0 10px;accent-color:var(--purple);cursor:p
 </div>
 <div class="cgrid" id="cgrid"></div>
 </div>
-
+ 
 <script>
 const MEALS=[
   {id:'breakfast',name:'Egg + cottage cheese + Ezekiel bread',time:'7–8am',cal:500,protein:44,carbs:40,fat:18},
@@ -197,19 +199,19 @@ const MEALS=[
 ];
 const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
-
+ 
 function todayKey(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
-
+ 
 let db=null,S={checked:{},isWorkout:false,steps:0};
 let VM={y:new Date().getFullYear(),m:new Date().getMonth()+1};
-
+ 
 function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open('DietLogDB',1);r.onupgradeneeded=e=>e.target.result.createObjectStore('days',{keyPath:'date'});r.onsuccess=e=>{db=e.target.result;res(db);};r.onerror=()=>rej(r.error);});}
 function getDay(k){return new Promise(res=>{const r=db.transaction('days','readonly').objectStore('days').get(k);r.onsuccess=()=>res(r.result||null);r.onerror=()=>res(null);});}
 function setDay(k,d){return new Promise(res=>{const tx=db.transaction('days','readwrite');tx.objectStore('days').put({date:k,...d});tx.oncomplete=res;tx.onerror=res;});}
 function allDays(){return new Promise(res=>{const r=db.transaction('days','readonly').objectStore('days').getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>res([]);});}
-
+ 
 async function save(){await setDay(todayKey(),S);const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1200);}
-
+ 
 function showTab(name,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tabbar button').forEach(b=>b.classList.remove('active'));
@@ -217,27 +219,27 @@ function showTab(name,btn){
   btn.classList.add('active');
   if(name==='month')renderMonth();
 }
-
+ 
 async function init(){
   await openDB();
   const saved=await getDay(todayKey());
   if(saved)S={checked:saved.checked||{},isWorkout:saved.isWorkout||false,steps:saved.steps||0};
   renderToday();
 }
-
+ 
 function renderToday(){
   const n=new Date();
   document.getElementById('day-name').textContent=DAYS[n.getDay()];
   document.getElementById('date-str').textContent=MONTHS[n.getMonth()]+' '+n.getDate()+', '+n.getFullYear();
   renderWorkout();renderMeals();renderSteps();updateTotals();
 }
-
+ 
 function renderWorkout(){
   const b=document.getElementById('wbtn');
   document.getElementById('wlabel').textContent=S.isWorkout?'Workout day':'Rest day';
   S.isWorkout?b.classList.add('on'):b.classList.remove('on');
 }
-
+ 
 function renderMeals(){
   const c=document.getElementById('meals-list');c.innerHTML='';
   MEALS.forEach(m=>{
@@ -250,7 +252,7 @@ function renderMeals(){
     c.appendChild(el);
   });
 }
-
+ 
 function renderSteps(){
   const s=S.steps||0;
   document.getElementById('s-big').textContent=s.toLocaleString();
@@ -262,7 +264,7 @@ function renderSteps(){
   if(s>=8000){el.textContent='Goal reached!';el.style.color='var(--green)';}
   else{el.textContent=(8000-s).toLocaleString()+' to go';el.style.color='var(--muted)';}
 }
-
+ 
 function updateTotals(){
   let cal=0,pro=0,carb=0,fat=0;
   MEALS.forEach(m=>{if(S.checked[m.id]){cal+=m.cal;pro+=m.protein;carb+=m.carbs;fat+=m.fat;}});
@@ -284,7 +286,7 @@ function updateTotals(){
   document.getElementById('p-pro').textContent=pp+'%';
   renderSummary(cal,pro,cT,pT);
 }
-
+ 
 function renderSummary(cal,pro,cT,pT){
   const logged=Object.values(S.checked).filter(Boolean).length;
   if(!logged&&!S.steps){document.getElementById('summ').style.display='none';return;}
@@ -300,7 +302,7 @@ function renderSummary(cal,pro,cT,pT){
     {l:'Steps',v:(S.steps||0).toLocaleString()+' / 8,000',c:sOk?'ok':(S.steps||0)>=6000?'warn':'bad'},
   ].map(r=>`<div class="sr"><span>${r.l}</span><span class="${r.c}">${r.v}</span></div>`).join('');
 }
-
+ 
 function syncSteps(src,val){
   S.steps=Math.max(0,parseInt(val)||0);
   if(src!=='slider')document.getElementById('s-slider').value=Math.min(S.steps,15000);
@@ -310,7 +312,7 @@ function syncSteps(src,val){
 async function saveSteps(){S.steps=Math.max(0,parseInt(document.getElementById('s-num').value)||0);await save();renderSteps();updateTotals();}
 async function toggleWorkout(){S.isWorkout=!S.isWorkout;if(!S.isWorkout)S.checked.shake=false;await save();renderToday();}
 async function resetToday(){if(confirm('Reset today?')){S={checked:{},isWorkout:false,steps:0};await save();renderToday();}}
-
+ 
 function dayStatus(d){
   if(!d)return null;
   const n=Object.values(d.checked||{}).filter(Boolean).length;
@@ -318,14 +320,14 @@ function dayStatus(d){
   if(n>=5)return'full';
   return'partial';
 }
-
+ 
 function changeMonth(dir){
   VM.m+=dir;
   if(VM.m>12){VM.m=1;VM.y++;}
   if(VM.m<1){VM.m=12;VM.y--;}
   renderMonth();
 }
-
+ 
 async function renderMonth(){
   const days=await allDays();
   const map={};days.forEach(d=>map[d.date]=d);
@@ -375,8 +377,206 @@ async function renderMonth(){
   const sub=streak===0?'Start your streak today!':streak<7?streak+' day'+(streak>1?'s':'')+' strong — keep going!':streak<30?'Great consistency — '+streak+' days!':'Incredible — '+streak+' days!';
   document.getElementById('ssub').textContent=sub;
 }
-
+ 
 init();
 </script>
+ 
+<!-- DIET PLAN TAB -->
+<div class="page" id="page-diet">
+<style>
+.diet-title{font-size:22px;font-weight:600;letter-spacing:-0.5px;margin-bottom:4px;}
+.diet-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.target-row{display:flex;gap:8px;margin-bottom:16px;}
+.target-pill{background:var(--surface2);border:0.5px solid var(--border);border-radius:20px;padding:6px 12px;font-size:12px;font-weight:500;}
+.target-pill span{color:var(--muted);margin-right:4px;}
+.meal-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:8px;}
+.meal-card-time{font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:6px;}
+.meal-card-name{font-size:15px;font-weight:600;margin-bottom:6px;}
+.meal-card-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;}
+.meal-card-macros{display:flex;gap:6px;flex-wrap:wrap;}
+.macro-pill{font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px;}
+.mp-p{background:rgba(96,165,250,0.12);color:#60a5fa;}
+.mp-c{background:rgba(251,191,36,0.12);color:#fbbf24;}
+.mp-f{background:rgba(192,132,252,0.12);color:#c084fc;}
+.mp-cal{background:rgba(52,211,153,0.12);color:#34d399;}
+.totals-box{background:var(--surface);border:0.5px solid var(--green-bd);border-radius:var(--r);padding:14px;margin-bottom:16px;}
+.totals-box-title{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:10px;}
+.totals-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.total-item{text-align:center;}
+.total-val{font-size:18px;font-weight:600;font-family:'DM Mono',monospace;}
+.total-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+</style>
+ 
+<div class="diet-title">Daily meal plan</div>
+<div class="diet-sub">Your complete nutrition template</div>
+ 
+<div class="target-row" style="flex-wrap:wrap;">
+  <div class="target-pill"><span>Target</span>1,750 cal</div>
+  <div class="target-pill"><span>Protein</span>160g</div>
+  <div class="target-pill"><span>Rest days</span>1,800 cal</div>
+  <div class="target-pill"><span>Workout days</span>1,920 cal</div>
+</div>
+ 
+<div class="sec">Meals</div>
+ 
+<div class="meal-card">
+  <div class="meal-card-time">7–8am · Breakfast</div>
+  <div class="meal-card-name">Egg + cottage cheese stir-fry + Ezekiel bread</div>
+  <div class="meal-card-desc">1 whole egg + ½ cup egg whites + ½ cup low-fat cottage cheese stir-fried with 2 cups frozen vegetables. Season with garlic powder, salt, pepper. Cook in ½ tbsp avocado oil. 2 slices Ezekiel sprouted bread on the side.</div>
+  <div class="meal-card-macros">
+    <span class="macro-pill mp-p">44g protein</span>
+    <span class="macro-pill mp-c">40g carbs</span>
+    <span class="macro-pill mp-f">18g fat</span>
+    <span class="macro-pill mp-cal">500 cal</span>
+  </div>
+</div>
+ 
+<div class="meal-card">
+  <div class="meal-card-time">12–1pm · Lunch</div>
+  <div class="meal-card-name">Overnight oats + apple</div>
+  <div class="meal-card-desc">¾ cup oats + 1 cup nonfat milk + ½ cup low-fat Greek yogurt + 1 tsp cocoa powder + 2 tsp chia seeds + 1 tsp ground flaxseed + 1 scoop Orgain Organic Plant-Based Protein Powder (Vanilla Bean). 1 medium apple on the side. Prep the night before, keep refrigerated until lunch.</div>
+  <div class="meal-card-macros">
+    <span class="macro-pill mp-p">40g protein</span>
+    <span class="macro-pill mp-c">94g carbs</span>
+    <span class="macro-pill mp-f">12g fat</span>
+    <span class="macro-pill mp-cal">635 cal</span>
+  </div>
+</div>
+ 
+<div class="meal-card">
+  <div class="meal-card-time">3–4pm · Snack</div>
+  <div class="meal-card-name">Greek yogurt + berries</div>
+  <div class="meal-card-desc">½ cup 0% Greek yogurt + ½ cup frozen berries (thawed).</div>
+  <div class="meal-card-macros">
+    <span class="macro-pill mp-p">10g protein</span>
+    <span class="macro-pill mp-c">15g carbs</span>
+    <span class="macro-pill mp-f">0g fat</span>
+    <span class="macro-pill mp-cal">100 cal</span>
+  </div>
+</div>
+ 
+<div class="meal-card">
+  <div class="meal-card-time">4–5pm · Mini snack</div>
+  <div class="meal-card-name">Mandarin</div>
+  <div class="meal-card-desc">1 mandarin. Easy and portable — bridges the gap between snack and dinner.</div>
+  <div class="meal-card-macros">
+    <span class="macro-pill mp-p">0g protein</span>
+    <span class="macro-pill mp-c">11g carbs</span>
+    <span class="macro-pill mp-f">0g fat</span>
+    <span class="macro-pill mp-cal">45 cal</span>
+  </div>
+</div>
+ 
+<div class="meal-card">
+  <div class="meal-card-time">7–8pm · Dinner</div>
+  <div class="meal-card-name">Chicken + carrots + broccoli + quinoa</div>
+  <div class="meal-card-desc">170g chicken breast (stir-fried or boiled) + 1 cup broccoli + 1 cup carrots + ½ cup cooked quinoa. Season with garlic powder, cumin, or paprika. Cook in ½ tbsp avocado oil.</div>
+  <div class="meal-card-macros">
+    <span class="macro-pill mp-p">50g protein</span>
+    <span class="macro-pill mp-c">35g carbs</span>
+    <span class="macro-pill mp-f">15g fat</span>
+    <span class="macro-pill mp-cal">520 cal</span>
+  </div>
+</div>
+ 
+<div class="meal-card" style="border-color:var(--purple-bd);">
+  <div class="meal-card-time">Post-workout only · Workout days</div>
+  <div class="meal-card-name">ON Gold Standard Whey</div>
+  <div class="meal-card-desc">1 scoop ON Gold Standard 100% Whey (Double Rich Chocolate) mixed with 6–8oz cold water. Drink within 30–60 min after workout.</div>
+  <div class="meal-card-macros">
+    <span class="macro-pill mp-p">24g protein</span>
+    <span class="macro-pill mp-c">3g carbs</span>
+    <span class="macro-pill mp-f">2g fat</span>
+    <span class="macro-pill mp-cal">120 cal</span>
+  </div>
+</div>
+ 
+<div class="sec">Daily totals</div>
+<div class="totals-box">
+  <div class="totals-box-title">Rest days (no shake)</div>
+  <div class="totals-grid">
+    <div class="total-item"><div class="total-val" style="color:var(--green)">1,800</div><div class="total-lbl">calories</div></div>
+    <div class="total-item"><div class="total-val" style="color:var(--blue)">144g</div><div class="total-lbl">protein</div></div>
+    <div class="total-item"><div class="total-val" style="color:var(--amber)">195g</div><div class="total-lbl">carbs</div></div>
+    <div class="total-item"><div class="total-val" style="color:var(--purple)">45g</div><div class="total-lbl">fat</div></div>
+  </div>
+</div>
+<div class="totals-box" style="border-color:var(--purple-bd);">
+  <div class="totals-box-title">Workout days (with shake)</div>
+  <div class="totals-grid">
+    <div class="total-item"><div class="total-val" style="color:var(--green)">1,920</div><div class="total-lbl">calories</div></div>
+    <div class="total-item"><div class="total-val" style="color:var(--blue)">168g</div><div class="total-lbl">protein</div></div>
+    <div class="total-item"><div class="total-val" style="color:var(--amber)">198g</div><div class="total-lbl">carbs</div></div>
+    <div class="total-item"><div class="total-val" style="color:var(--purple)">47g</div><div class="total-lbl">fat</div></div>
+  </div>
+</div>
+</div>
+ 
+<!-- GROCERY TAB -->
+<div class="page" id="page-grocery">
+<style>
+.groc-title{font-size:22px;font-weight:600;letter-spacing:-0.5px;margin-bottom:4px;}
+.groc-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
+.groc-section{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin:16px 0 8px;padding-bottom:6px;border-bottom:0.5px solid var(--border);}
+.groc-item{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:0.5px solid var(--border);}
+.groc-item:last-child{border-bottom:none;}
+.groc-left{flex:1;}
+.groc-name{font-size:13px;font-weight:500;color:var(--text);}
+.groc-note{font-size:11px;color:var(--muted);margin-top:2px;}
+.groc-qty{font-size:12px;color:var(--muted);text-align:right;white-space:nowrap;margin-left:12px;}
+.amazon-tag{font-size:10px;font-weight:500;background:var(--amber-bg);color:var(--amber);border:0.5px solid var(--amber-bd);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:middle;}
+.groc-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:0 14px;margin-bottom:8px;}
+.tip{background:var(--green-bg);border:0.5px solid var(--green-bd);border-radius:var(--r);padding:12px 14px;font-size:12px;color:var(--green);line-height:1.6;margin-bottom:16px;}
+</style>
+ 
+<div class="groc-title">Weekly shopping list</div>
+<div class="groc-sub">Trader Joe's · Quantities for 7 days</div>
+<div class="tip">Everything below is at Trader Joe's unless marked Amazon.</div>
+ 
+<div class="groc-section">Proteins</div>
+<div class="groc-card">
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Boneless skinless chicken breast</div><div class="groc-note">170g per night at dinner</div></div><div class="groc-qty">~3.5 lbs</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Liquid egg whites (carton)</div><div class="groc-note">½ cup per day at breakfast</div></div><div class="groc-qty">1 carton (32oz)</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Whole eggs</div><div class="groc-note">1 per day at breakfast</div></div><div class="groc-qty">1 dozen</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Low-fat Greek yogurt (0%)</div><div class="groc-note">½ cup lunch + ½ cup snack daily</div></div><div class="groc-qty">1 tub (32oz)</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Low-fat cottage cheese</div><div class="groc-note">½ cup per day at breakfast</div></div><div class="groc-qty">1 tub (24oz)</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Nonfat milk</div><div class="groc-note">1 cup per day in oats</div></div><div class="groc-qty">1 half gallon</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Orgain Plant-Based Protein, Vanilla Bean<span class="amazon-tag">Amazon</span></div><div class="groc-note">1 scoop/day in lunch oats</div></div><div class="groc-qty">1 tub (2 lbs)</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">ON Gold Standard Whey, Chocolate<span class="amazon-tag">Amazon</span></div><div class="groc-note">1 scoop post-workout on training days</div></div><div class="groc-qty">1 tub (5 lbs)</div></div>
+</div>
+ 
+<div class="groc-section">Grains & bread</div>
+<div class="groc-card">
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Rolled oats</div><div class="groc-note">¾ cup per day in overnight oats</div></div><div class="groc-qty">1 bag (18oz)</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Ezekiel sprouted bread</div><div class="groc-note">2 slices per day at breakfast — freezer section</div></div><div class="groc-qty">1 loaf</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Quinoa</div><div class="groc-note">½ cup cooked per day at dinner</div></div><div class="groc-qty">1 bag (16oz)</div></div>
+</div>
+ 
+<div class="groc-section">Vegetables</div>
+<div class="groc-card">
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Frozen stir-fry vegetable medley</div><div class="groc-note">2 cups per day at breakfast</div></div><div class="groc-qty">3 bags (16oz)</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Broccoli (fresh or frozen)</div><div class="groc-note">1 cup per day at dinner</div></div><div class="groc-qty">1 large head</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Carrots</div><div class="groc-note">1 cup per day at dinner</div></div><div class="groc-qty">1 bag (2 lbs)</div></div>
+</div>
+ 
+<div class="groc-section">Fruits</div>
+<div class="groc-card">
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Apples (medium)</div><div class="groc-note">1 per day with lunch oats</div></div><div class="groc-qty">7 apples</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Mandarins</div><div class="groc-note">1 per day after snack</div></div><div class="groc-qty">1 bag (3 lbs)</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Frozen mixed berries</div><div class="groc-note">½ cup per day in snack</div></div><div class="groc-qty">1 bag (16oz)</div></div>
+</div>
+ 
+<div class="groc-section">Pantry & oils</div>
+<div class="groc-card">
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Avocado oil</div><div class="groc-note">½ tbsp at breakfast + dinner</div></div><div class="groc-qty">1 bottle</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Chia seeds</div><div class="groc-note">2 tsp per day in oats</div></div><div class="groc-qty">1 bag</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Ground flaxseed</div><div class="groc-note">1 tsp per day in oats — baking aisle</div></div><div class="groc-qty">1 bag</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Cocoa powder (unsweetened)</div><div class="groc-note">1 tsp per day in oats</div></div><div class="groc-qty">1 tin</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Garlic powder</div><div class="groc-note">Seasoning for breakfast and dinner</div></div><div class="groc-qty">1 jar</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Cumin + paprika</div><div class="groc-note">Seasoning for chicken at dinner</div></div><div class="groc-qty">1 jar each</div></div>
+  <div class="groc-item"><div class="groc-left"><div class="groc-name">Salt + black pepper</div><div class="groc-note">General seasoning</div></div><div class="groc-qty">existing</div></div>
+</div>
+</div>
+ 
 </body>
 </html>
