@@ -120,7 +120,7 @@ input[type=range]{width:100%;margin:0 0 10px;accent-color:var(--purple);cursor:p
   <button id="tab-btn-diet" onclick="showTab('diet',this)">Diet</button>
   <button id="tab-btn-grocery" onclick="showTab('grocery',this)">Grocery</button>
 </div>
- 
+
 <div class="page active" id="page-today">
 <div class="hdr">
   <div class="hdr-l"><div class="day" id="day-name">—</div><div class="dt" id="date-str">—</div></div>
@@ -139,6 +139,8 @@ input[type=range]{width:100%;margin:0 0 10px;accent-color:var(--purple);cursor:p
 </div>
 <div class="sec">Meals</div>
 <div id="meals-list"></div>
+<div class="sec">Daily habits</div>
+<div id="habits-list"></div>
 <div class="sec">Steps</div>
 <div class="scard">
   <div class="stop">
@@ -158,7 +160,7 @@ input[type=range]{width:100%;margin:0 0 10px;accent-color:var(--purple);cursor:p
 <button class="rbtn" onclick="resetToday()">Reset today</button>
 <div class="toast" id="toast">Saved</div>
 </div>
- 
+
 <div class="page" id="page-month">
 <div class="cal-hdr">
   <div class="mtitle" id="mtitle">—</div>
@@ -187,7 +189,7 @@ input[type=range]{width:100%;margin:0 0 10px;accent-color:var(--purple);cursor:p
 </div>
 <div class="cgrid" id="cgrid"></div>
 </div>
- 
+
 <script>
 const MEALS=[
   {id:'breakfast',name:'Egg + cottage cheese + Ezekiel bread',time:'7–8am',cal:500,protein:44,carbs:40,fat:18},
@@ -197,21 +199,28 @@ const MEALS=[
   {id:'dinner',name:'Chicken + carrots + broccoli + quinoa',time:'7–8pm',cal:520,protein:50,carbs:35,fat:15},
   {id:'shake',name:'ON Gold Standard Whey',time:'Post-workout',cal:120,protein:24,carbs:3,fat:2,optional:true},
 ];
+const HABITS=[
+  {id:'water1',name:'Water 1',note:'First glass of the day — drink on waking'},
+  {id:'water2',name:'Water 2',note:'Second glass — with lunch'},
+  {id:'water3',name:'Water 3',note:'Third glass — with dinner'},
+  {id:'prepareoats',name:'Prepare overnight oats',note:'Prep tonight\'s oats before bed for tomorrow\'s lunch'},
+  {id:'cleandishes',name:'Clean dishes',note:'Keep the kitchen clean — sets you up for tomorrow'},
+];
 const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
- 
+
 function todayKey(){const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
- 
-let db=null,S={checked:{},isWorkout:false,steps:0};
+
+let db=null,S={checked:{},habits:{},isWorkout:false,steps:0};
 let VM={y:new Date().getFullYear(),m:new Date().getMonth()+1};
- 
+
 function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open('DietLogDB',1);r.onupgradeneeded=e=>e.target.result.createObjectStore('days',{keyPath:'date'});r.onsuccess=e=>{db=e.target.result;res(db);};r.onerror=()=>rej(r.error);});}
 function getDay(k){return new Promise(res=>{const r=db.transaction('days','readonly').objectStore('days').get(k);r.onsuccess=()=>res(r.result||null);r.onerror=()=>res(null);});}
 function setDay(k,d){return new Promise(res=>{const tx=db.transaction('days','readwrite');tx.objectStore('days').put({date:k,...d});tx.oncomplete=res;tx.onerror=res;});}
 function allDays(){return new Promise(res=>{const r=db.transaction('days','readonly').objectStore('days').getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>res([]);});}
- 
+
 async function save(){await setDay(todayKey(),S);const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1200);}
- 
+
 function showTab(name,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tabbar button').forEach(b=>b.classList.remove('active'));
@@ -219,27 +228,28 @@ function showTab(name,btn){
   btn.classList.add('active');
   if(name==='month')renderMonth();
 }
- 
+
 async function init(){
   await openDB();
   const saved=await getDay(todayKey());
-  if(saved)S={checked:saved.checked||{},isWorkout:saved.isWorkout||false,steps:saved.steps||0};
+  if(saved)S={checked:saved.checked||{},habits:saved.habits||{},isWorkout:saved.isWorkout||false,steps:saved.steps||0};
+  else S={checked:{},habits:{},isWorkout:false,steps:0};
   renderToday();
 }
- 
+
 function renderToday(){
   const n=new Date();
   document.getElementById('day-name').textContent=DAYS[n.getDay()];
   document.getElementById('date-str').textContent=MONTHS[n.getMonth()]+' '+n.getDate()+', '+n.getFullYear();
-  renderWorkout();renderMeals();renderSteps();updateTotals();
+  renderWorkout();renderMeals();renderHabits();renderSteps();updateTotals();
 }
- 
+
 function renderWorkout(){
   const b=document.getElementById('wbtn');
   document.getElementById('wlabel').textContent=S.isWorkout?'Workout day':'Rest day';
   S.isWorkout?b.classList.add('on'):b.classList.remove('on');
 }
- 
+
 function renderMeals(){
   const c=document.getElementById('meals-list');c.innerHTML='';
   MEALS.forEach(m=>{
@@ -252,7 +262,19 @@ function renderMeals(){
     c.appendChild(el);
   });
 }
- 
+
+function renderHabits(){
+  const c=document.getElementById('habits-list');c.innerHTML='';
+  HABITS.forEach(h=>{
+    const done=!!S.habits[h.id];
+    const el=document.createElement('div');
+    el.className='meal'+(done?' done':'');
+    el.onclick=async()=>{S.habits[h.id]=!S.habits[h.id];await save();renderHabits();updateSummary();};
+    el.innerHTML=`<div class="chk"><div class="chk-i"></div><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="mb"><div class="mn">${h.name}</div><div class="mi">${h.note}</div></div>`;
+    c.appendChild(el);
+  });
+}
+
 function renderSteps(){
   const s=S.steps||0;
   document.getElementById('s-big').textContent=s.toLocaleString();
@@ -264,7 +286,7 @@ function renderSteps(){
   if(s>=8000){el.textContent='Goal reached!';el.style.color='var(--green)';}
   else{el.textContent=(8000-s).toLocaleString()+' to go';el.style.color='var(--muted)';}
 }
- 
+
 function updateTotals(){
   let cal=0,pro=0,carb=0,fat=0;
   MEALS.forEach(m=>{if(S.checked[m.id]){cal+=m.cal;pro+=m.protein;carb+=m.carbs;fat+=m.fat;}});
@@ -286,7 +308,7 @@ function updateTotals(){
   document.getElementById('p-pro').textContent=pp+'%';
   renderSummary(cal,pro,cT,pT);
 }
- 
+
 function renderSummary(cal,pro,cT,pT){
   const logged=Object.values(S.checked).filter(Boolean).length;
   if(!logged&&!S.steps){document.getElementById('summ').style.display='none';return;}
@@ -302,7 +324,7 @@ function renderSummary(cal,pro,cT,pT){
     {l:'Steps',v:(S.steps||0).toLocaleString()+' / 8,000',c:sOk?'ok':(S.steps||0)>=6000?'warn':'bad'},
   ].map(r=>`<div class="sr"><span>${r.l}</span><span class="${r.c}">${r.v}</span></div>`).join('');
 }
- 
+
 function syncSteps(src,val){
   S.steps=Math.max(0,parseInt(val)||0);
   if(src!=='slider')document.getElementById('s-slider').value=Math.min(S.steps,15000);
@@ -311,8 +333,8 @@ function syncSteps(src,val){
 }
 async function saveSteps(){S.steps=Math.max(0,parseInt(document.getElementById('s-num').value)||0);await save();renderSteps();updateTotals();}
 async function toggleWorkout(){S.isWorkout=!S.isWorkout;if(!S.isWorkout)S.checked.shake=false;await save();renderToday();}
-async function resetToday(){if(confirm('Reset today?')){S={checked:{},isWorkout:false,steps:0};await save();renderToday();}}
- 
+async function resetToday(){if(confirm('Reset today?')){S={checked:{},habits:{},isWorkout:false,steps:0};await save();renderToday();}}
+
 function dayStatus(d){
   if(!d)return null;
   const n=Object.values(d.checked||{}).filter(Boolean).length;
@@ -320,14 +342,14 @@ function dayStatus(d){
   if(n>=5)return'full';
   return'partial';
 }
- 
+
 function changeMonth(dir){
   VM.m+=dir;
   if(VM.m>12){VM.m=1;VM.y++;}
   if(VM.m<1){VM.m=12;VM.y--;}
   renderMonth();
 }
- 
+
 async function renderMonth(){
   const days=await allDays();
   const map={};days.forEach(d=>map[d.date]=d);
@@ -377,10 +399,10 @@ async function renderMonth(){
   const sub=streak===0?'Start your streak today!':streak<7?streak+' day'+(streak>1?'s':'')+' strong — keep going!':streak<30?'Great consistency — '+streak+' days!':'Incredible — '+streak+' days!';
   document.getElementById('ssub').textContent=sub;
 }
- 
+
 init();
 </script>
- 
+
 <!-- DIET PLAN TAB -->
 <div class="page" id="page-diet">
 <style>
@@ -406,19 +428,19 @@ init();
 .total-val{font-size:18px;font-weight:600;font-family:'DM Mono',monospace;}
 .total-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
 </style>
- 
+
 <div class="diet-title">Daily meal plan</div>
 <div class="diet-sub">Your complete nutrition template</div>
- 
+
 <div class="target-row" style="flex-wrap:wrap;">
   <div class="target-pill"><span>Target</span>1,750 cal</div>
   <div class="target-pill"><span>Protein</span>160g</div>
   <div class="target-pill"><span>Rest days</span>1,800 cal</div>
   <div class="target-pill"><span>Workout days</span>1,920 cal</div>
 </div>
- 
+
 <div class="sec">Meals</div>
- 
+
 <div class="meal-card">
   <div class="meal-card-time">7–8am · Breakfast</div>
   <div class="meal-card-name">Egg + cottage cheese stir-fry + Ezekiel bread</div>
@@ -430,7 +452,7 @@ init();
     <span class="macro-pill mp-cal">500 cal</span>
   </div>
 </div>
- 
+
 <div class="meal-card">
   <div class="meal-card-time">12–1pm · Lunch</div>
   <div class="meal-card-name">Overnight oats + apple</div>
@@ -442,7 +464,7 @@ init();
     <span class="macro-pill mp-cal">635 cal</span>
   </div>
 </div>
- 
+
 <div class="meal-card">
   <div class="meal-card-time">3–4pm · Snack</div>
   <div class="meal-card-name">Greek yogurt + berries</div>
@@ -454,7 +476,7 @@ init();
     <span class="macro-pill mp-cal">100 cal</span>
   </div>
 </div>
- 
+
 <div class="meal-card">
   <div class="meal-card-time">4–5pm · Mini snack</div>
   <div class="meal-card-name">Mandarin</div>
@@ -466,7 +488,7 @@ init();
     <span class="macro-pill mp-cal">45 cal</span>
   </div>
 </div>
- 
+
 <div class="meal-card">
   <div class="meal-card-time">7–8pm · Dinner</div>
   <div class="meal-card-name">Chicken + carrots + broccoli + quinoa</div>
@@ -478,7 +500,7 @@ init();
     <span class="macro-pill mp-cal">520 cal</span>
   </div>
 </div>
- 
+
 <div class="meal-card" style="border-color:var(--purple-bd);">
   <div class="meal-card-time">Post-workout only · Workout days</div>
   <div class="meal-card-name">ON Gold Standard Whey</div>
@@ -490,7 +512,7 @@ init();
     <span class="macro-pill mp-cal">120 cal</span>
   </div>
 </div>
- 
+
 <div class="sec">Daily totals</div>
 <div class="totals-box">
   <div class="totals-box-title">Rest days (no shake)</div>
@@ -511,7 +533,7 @@ init();
   </div>
 </div>
 </div>
- 
+
 <!-- GROCERY TAB -->
 <div class="page" id="page-grocery">
 <style>
@@ -528,11 +550,11 @@ init();
 .groc-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:0 14px;margin-bottom:8px;}
 .tip{background:var(--green-bg);border:0.5px solid var(--green-bd);border-radius:var(--r);padding:12px 14px;font-size:12px;color:var(--green);line-height:1.6;margin-bottom:16px;}
 </style>
- 
+
 <div class="groc-title">Weekly shopping list</div>
 <div class="groc-sub">Trader Joe's · Quantities for 7 days</div>
 <div class="tip">Everything below is at Trader Joe's unless marked Amazon.</div>
- 
+
 <div class="groc-section">Proteins</div>
 <div class="groc-card">
   <div class="groc-item"><div class="groc-left"><div class="groc-name">Boneless skinless chicken breast</div><div class="groc-note">170g per night at dinner</div></div><div class="groc-qty">~3.5 lbs</div></div>
@@ -544,28 +566,28 @@ init();
   <div class="groc-item"><div class="groc-left"><div class="groc-name">Orgain Plant-Based Protein, Vanilla Bean<span class="amazon-tag">Amazon</span></div><div class="groc-note">1 scoop/day in lunch oats</div></div><div class="groc-qty">1 tub (2 lbs)</div></div>
   <div class="groc-item"><div class="groc-left"><div class="groc-name">ON Gold Standard Whey, Chocolate<span class="amazon-tag">Amazon</span></div><div class="groc-note">1 scoop post-workout on training days</div></div><div class="groc-qty">1 tub (5 lbs)</div></div>
 </div>
- 
+
 <div class="groc-section">Grains & bread</div>
 <div class="groc-card">
   <div class="groc-item"><div class="groc-left"><div class="groc-name">Rolled oats</div><div class="groc-note">¾ cup per day in overnight oats</div></div><div class="groc-qty">1 bag (18oz)</div></div>
   <div class="groc-item"><div class="groc-left"><div class="groc-name">Ezekiel sprouted bread</div><div class="groc-note">2 slices per day at breakfast — freezer section</div></div><div class="groc-qty">1 loaf</div></div>
   <div class="groc-item"><div class="groc-left"><div class="groc-name">Quinoa</div><div class="groc-note">½ cup cooked per day at dinner</div></div><div class="groc-qty">1 bag (16oz)</div></div>
 </div>
- 
+
 <div class="groc-section">Vegetables</div>
 <div class="groc-card">
   <div class="groc-item"><div class="groc-left"><div class="groc-name">Frozen stir-fry vegetable medley</div><div class="groc-note">2 cups per day at breakfast</div></div><div class="groc-qty">3 bags (16oz)</div></div>
   <div class="groc-item"><div class="groc-left"><div class="groc-name">Broccoli (fresh or frozen)</div><div class="groc-note">1 cup per day at dinner</div></div><div class="groc-qty">1 large head</div></div>
   <div class="groc-item"><div class="groc-left"><div class="groc-name">Carrots</div><div class="groc-note">1 cup per day at dinner</div></div><div class="groc-qty">1 bag (2 lbs)</div></div>
 </div>
- 
+
 <div class="groc-section">Fruits</div>
 <div class="groc-card">
   <div class="groc-item"><div class="groc-left"><div class="groc-name">Apples (medium)</div><div class="groc-note">1 per day with lunch oats</div></div><div class="groc-qty">7 apples</div></div>
   <div class="groc-item"><div class="groc-left"><div class="groc-name">Mandarins</div><div class="groc-note">1 per day after snack</div></div><div class="groc-qty">1 bag (3 lbs)</div></div>
   <div class="groc-item"><div class="groc-left"><div class="groc-name">Frozen mixed berries</div><div class="groc-note">½ cup per day in snack</div></div><div class="groc-qty">1 bag (16oz)</div></div>
 </div>
- 
+
 <div class="groc-section">Pantry & oils</div>
 <div class="groc-card">
   <div class="groc-item"><div class="groc-left"><div class="groc-name">Avocado oil</div><div class="groc-note">½ tbsp at breakfast + dinner</div></div><div class="groc-qty">1 bottle</div></div>
@@ -577,6 +599,6 @@ init();
   <div class="groc-item"><div class="groc-left"><div class="groc-name">Salt + black pepper</div><div class="groc-note">General seasoning</div></div><div class="groc-qty">existing</div></div>
 </div>
 </div>
- 
+
 </body>
 </html>
