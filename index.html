@@ -6,191 +6,461 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Diet Log">
-<meta name="theme-color" content="#0c0c0e">
+<meta name="theme-color" content="#0d0d0d">
 <title>Diet Log</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0c0c0e;--surface:#17171a;--surface2:#1e1e22;--border:rgba(255,255,255,0.07);--text:#f0eff4;--muted:#6e6d7a;--muted2:#3a3948;--green:#34d399;--green-bg:rgba(52,211,153,0.1);--green-bd:rgba(52,211,153,0.25);--blue:#60a5fa;--amber:#fbbf24;--amber-bg:rgba(251,191,36,0.1);--amber-bd:rgba(251,191,36,0.25);--purple:#c084fc;--purple-bg:rgba(192,132,252,0.1);--purple-bd:rgba(192,132,252,0.25);--red:#f87171;--red-bg:rgba(248,113,113,0.1);--red-bd:rgba(248,113,113,0.25);--r:14px;--r-sm:10px;}
+:root{
+  --bg:#0d0d0d;--surface:#161616;--surface2:#1e1e1e;--border:rgba(255,255,255,0.06);
+  --text:#f5f0e8;--muted:#7a7060;--muted2:#2a2820;
+  --gold:#f5a623;--gold-bg:rgba(245,166,35,0.1);--gold-bd:rgba(245,166,35,0.25);
+  --green:#4ade80;--green-bg:rgba(74,222,128,0.1);--green-bd:rgba(74,222,128,0.25);
+  --orange:#fb923c;--orange-bg:rgba(251,146,60,0.1);--orange-bd:rgba(251,146,60,0.25);
+  --blue:#60a5fa;--blue-bg:rgba(96,165,250,0.1);
+  --red:#f87171;--red-bg:rgba(248,113,113,0.1);
+  --r:14px;--r-sm:10px;
+}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html{background:var(--bg);}
 body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);max-width:440px;margin:0 auto;min-height:100vh;}
-.tabbar{display:flex;background:var(--surface);border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:10;padding-top:env(safe-area-inset-top);}
-.tabbar button{flex:1;padding:14px 8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--muted);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all 0.2s;}
-.tabbar button.active{color:var(--green);border-bottom-color:var(--green);}
-.page{display:none;padding:16px 16px calc(env(safe-area-inset-bottom)+40px);}
+
+/* Tabbar */
+.tabbar{display:flex;background:var(--surface);border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:10;padding-top:env(safe-area-inset-top);overflow-x:auto;}
+.tabbar::-webkit-scrollbar{display:none;}
+.tabbar button{flex-shrink:0;padding:13px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--muted);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+.tabbar button.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+/* Pages */
+.page{display:none;padding:0 0 calc(env(safe-area-inset-bottom)+40px);}
 .page.active{display:block;}
-.hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;}
-.hdr-l .day{font-size:24px;font-weight:600;letter-spacing:-0.5px;}
-.hdr-l .dt{font-size:12px;color:var(--muted);margin-top:3px;}
+
+/* Hero header */
+.hero{padding:24px 16px 20px;background:linear-gradient(160deg,#1a1500 0%,#0d0d0d 60%);}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;}
+.hero-date .weekday{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--text);letter-spacing:-0.5px;line-height:1;}
+.hero-date .fulldate{font-size:12px;color:var(--muted);margin-top:4px;}
 .wbtn{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:7px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--border);background:var(--surface2);color:var(--muted);transition:all 0.2s;}
 .wbtn .dot{width:6px;height:6px;border-radius:50%;background:var(--muted);}
-.wbtn.on{background:var(--purple-bg);border-color:var(--purple-bd);color:var(--purple);}
-.wbtn.on .dot{background:var(--purple);}
-.mgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px;}
-.mc{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:14px 12px;}
-.mc-v{font-size:30px;font-weight:600;font-family:'DM Mono',monospace;letter-spacing:-1.5px;line-height:1;}
-.mc-l{font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-top:4px;}
-.mc-s{font-size:11px;margin-top:6px;color:var(--muted);}
-.mc.cal{border-color:var(--green-bd);}.mc.cal .mc-v{color:var(--green);}
-.mc.pro{border-color:rgba(96,165,250,0.2);}.mc.pro .mc-v{color:var(--blue);}
-.mc.carb{border-color:rgba(251,191,36,0.2);}.mc.carb .mc-v{color:var(--amber);}
-.mc.fat{border-color:var(--purple-bd);}.mc.fat .mc-v{color:var(--purple);}
-.bars{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;display:flex;flex-direction:column;gap:12px;}
-.br-m{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px;}
-.br-m span:last-child{font-family:'DM Mono',monospace;font-weight:500;}
-.br-t{height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;}
-.br-f{height:100%;border-radius:2px;transition:width 0.5s cubic-bezier(.4,0,.2,1);}
-.sec{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin:16px 0 8px;}
-.meal{display:flex;align-items:center;gap:10px;padding:13px 12px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:6px;cursor:pointer;transition:all 0.15s;user-select:none;}
-.meal:active{transform:scale(0.98);}
+.wbtn.on{background:var(--gold-bg);border-color:var(--gold-bd);color:var(--gold);}
+.wbtn.on .dot{background:var(--gold);}
+
+/* Motivational quote */
+.quote-band{background:var(--gold-bg);border:0.5px solid var(--gold-bd);border-radius:var(--r);padding:12px 14px;margin-bottom:20px;}
+.quote-text{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;color:var(--gold);line-height:1.5;}
+.quote-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+
+/* Ring / circular progress */
+.ring-row{display:flex;justify-content:center;margin-bottom:20px;gap:20px;}
+.ring-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.ring-svg{transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:var(--surface2);stroke-width:5;}
+.ring-fill{fill:none;stroke-width:5;stroke-linecap:round;transition:stroke-dashoffset 0.6s cubic-bezier(.4,0,.2,1);}
+.ring-inner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+.ring-container{position:relative;width:80px;height:80px;}
+.ring-val{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;line-height:1;}
+.ring-lbl{font-size:9px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-top:1px;}
+.ring-name{font-size:11px;color:var(--muted);text-align:center;}
+
+/* Progress bars */
+.bars-section{padding:0 16px;margin-bottom:4px;}
+.br-row{margin-bottom:10px;}
+.br-top{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;}
+.br-top span:first-child{color:var(--muted);}
+.br-top span:last-child{font-family:'DM Mono',monospace;font-weight:500;}
+.br-track{height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+.br-fill{height:100%;border-radius:3px;transition:width 0.5s cubic-bezier(.4,0,.2,1);}
+
+/* Section labels */
+.sec{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin:0 0 8px;padding:16px 16px 0;}
+
+/* Meal cards */
+.meals-wrap{padding:0 16px;}
+.meal{display:flex;align-items:center;gap:10px;padding:13px 14px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:6px;cursor:pointer;transition:all 0.2s;user-select:none;position:relative;overflow:hidden;}
+.meal::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold-bd);border-radius:3px 0 0 3px;transition:background 0.2s;}
 .meal.done{background:var(--green-bg);border-color:var(--green-bd);}
+.meal.done::before{background:var(--green);}
+.meal.habit-item::before{background:var(--orange-bd);}
+.meal.habit-item.done::before{background:var(--orange);}
+.meal:active{transform:scale(0.98);}
 .chk{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--muted2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;}
 .meal.done .chk{background:var(--green);border-color:var(--green);}
+.meal.habit-item.done .chk{background:var(--orange);border-color:var(--orange);}
 .chk-i{width:8px;height:8px;border-radius:50%;background:var(--muted2);}
 .meal.done .chk-i{display:none;}
 .chk svg{display:none;}
 .meal.done .chk svg{display:block;}
 .mb{flex:1;min-width:0;}
-.mn{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mn{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color 0.2s;}
 .meal.done .mn{color:var(--muted);text-decoration:line-through;}
 .mi{font-size:11px;color:var(--muted);margin-top:2px;}
 .mr{text-align:right;flex-shrink:0;}
-.mc2{font-size:15px;font-weight:600;font-family:'DM Mono',monospace;color:var(--green);}
+.mc2{font-size:15px;font-weight:600;font-family:'DM Mono',monospace;color:var(--gold);}
 .meal.done .mc2{color:var(--muted);}
 .mt2{font-size:10px;color:var(--muted);margin-top:1px;}
+
+/* Steps */
+.steps-wrap{padding:0 16px;}
 .scard{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;}
 .stop{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:12px;}
-.sbig{font-size:32px;font-weight:600;font-family:'DM Mono',monospace;color:var(--purple);letter-spacing:-1.5px;line-height:1;}
+.sbig{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--gold);letter-spacing:-1.5px;line-height:1;}
 .slbl{font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-top:4px;}
 .sstat{font-size:12px;font-weight:500;}
-input[type=range]{width:100%;margin:0 0 10px;accent-color:var(--purple);cursor:pointer;height:20px;}
+input[type=range]{width:100%;margin:0 0 10px;accent-color:var(--gold);cursor:pointer;height:20px;}
 .srow{display:flex;gap:8px;}
 .srow input[type=number]{flex:1;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-family:'DM Mono',monospace;font-size:16px;padding:10px 12px;outline:none;-moz-appearance:textfield;}
 .srow input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
-.srow input[type=number]:focus{border-color:var(--purple-bd);}
-.srow button{background:var(--purple-bg);border:0.5px solid var(--purple-bd);border-radius:var(--r-sm);color:var(--purple);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:10px 16px;cursor:pointer;}
+.srow input[type=number]:focus{border-color:var(--gold-bd);}
+.srow button{background:var(--gold-bg);border:0.5px solid var(--gold-bd);border-radius:var(--r-sm);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:10px 16px;cursor:pointer;}
+
+/* Summary */
+.summ-wrap{padding:0 16px;}
 .summ{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;}
 .sh{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
 .sdot{width:8px;height:8px;border-radius:50%;}
-.st{font-size:15px;font-weight:600;}
+.st{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
 .sr{display:flex;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid var(--border);}
 .sr:last-child{border-bottom:none;}
 .sr span:first-child{font-size:13px;color:var(--muted);}
 .sr span:last-child{font-size:13px;font-weight:500;font-family:'DM Mono',monospace;}
-.ok{color:var(--green)!important;}.warn{color:var(--amber)!important;}.bad{color:var(--red)!important;}
+.ok{color:var(--green)!important;}.warn{color:var(--gold)!important;}.bad{color:var(--red)!important;}
+
+/* Actions */
+.actions-wrap{padding:0 16px;}
 .rbtn{width:100%;padding:13px;border-radius:var(--r);border:0.5px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:4px;}
 .rbtn:active{background:var(--surface);}
 .toast{text-align:center;font-size:11px;color:var(--green);padding:8px;opacity:0;transition:opacity 0.3s;}
 .toast.show{opacity:1;}
+
+/* Monthly calendar */
+.cal-wrap{padding:16px;}
 .cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-.cal-hdr .mtitle{font-size:18px;font-weight:600;letter-spacing:-0.3px;}
+.cal-hdr .mtitle{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:-0.3px;}
 .cal-nav{display:flex;gap:8px;}
-.cal-nav button{background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;color:var(--text);font-size:18px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
-.streak-card{background:var(--surface);border:0.5px solid var(--green-bd);border-radius:var(--r);padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
-.streak-num{font-size:36px;font-weight:600;font-family:'DM Mono',monospace;color:var(--green);line-height:1;min-width:48px;}
-.streak-lbl{font-size:14px;font-weight:500;}
+.cal-nav button{background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;color:var(--text);font-size:18px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.streak-card{background:var(--gold-bg);border:0.5px solid var(--gold-bd);border-radius:var(--r);padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+.streak-num{font-family:'Syne',sans-serif;font-size:40px;font-weight:800;color:var(--gold);line-height:1;min-width:52px;}
+.streak-lbl{font-size:14px;font-weight:500;color:var(--gold);}
 .streak-sub{font-size:12px;color:var(--muted);margin-top:2px;}
 .mstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
 .mstat{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:12px;text-align:center;}
-.mstat-v{font-size:24px;font-weight:600;font-family:'DM Mono',monospace;}
+.mstat-v{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;}
 .mstat-l{font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-top:3px;}
-.mstat.full .mstat-v{color:var(--green);}
-.mstat.part .mstat-v{color:var(--amber);}
-.mstat.miss .mstat-v{color:var(--red);}
 .legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
 .leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);}
 .leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
 .days-hdr{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;}
 .days-hdr span{font-size:9px;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);text-align:center;padding:4px 0;}
 .cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
-.cc{aspect-ratio:1;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:500;background:var(--surface);border:0.5px solid var(--border);position:relative;}
+.cc{aspect-ratio:1;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:500;background:var(--surface);border:0.5px solid var(--border);}
 .cc.empty{background:transparent;border-color:transparent;}
-.cc.today{border-color:var(--green);color:var(--green);}
+.cc.today{border-color:var(--gold);color:var(--gold);}
 .cc.full{background:var(--green-bg);border-color:var(--green-bd);color:var(--green);}
-.cc.partial{background:var(--amber-bg);border-color:var(--amber-bd);color:var(--amber);}
-.cc.missed{background:var(--red-bg);border-color:var(--red-bd);color:var(--red);}
+.cc.partial{background:var(--gold-bg);border-color:var(--gold-bd);color:var(--gold);}
+.cc.missed{background:var(--red-bg);border-color:rgba(248,113,113,0.25);color:var(--red);}
 .cc.future{opacity:0.25;}
 .cc-dot{width:3px;height:3px;border-radius:50%;background:currentColor;opacity:0.6;margin-top:1px;}
+
+/* Diet & Grocery tabs */
+.content-wrap{padding:0 16px 16px;}
+.meal-card{background:var(--surface);border:0.5px solid var(--border);border-left:3px solid var(--gold-bd);border-radius:var(--r);padding:14px;margin-bottom:8px;}
+.meal-card-time{font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:5px;}
+.meal-card-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:6px;color:var(--text);}
+.meal-card-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;}
+.macros-row{display:flex;gap:6px;flex-wrap:wrap;}
+.mpill{font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px;}
+.mp-p{background:var(--blue-bg);color:var(--blue);}
+.mp-c{background:var(--gold-bg);color:var(--gold);}
+.mp-f{background:var(--orange-bg);color:var(--orange);}
+.mp-cal{background:var(--green-bg);color:var(--green);}
+.totals-box{background:var(--surface);border:0.5px solid var(--gold-bd);border-radius:var(--r);padding:14px;margin-bottom:10px;}
+.totals-title{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:10px;}
+.totals-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.total-item{text-align:center;}
+.total-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;}
+.total-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+.groc-sec{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin:16px 0 8px;padding-bottom:6px;border-bottom:0.5px solid var(--border);}
+.groc-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:0 14px;margin-bottom:8px;}
+.groc-item{display:flex;align-items:flex-start;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--border);gap:12px;}
+.groc-item:last-child{border-bottom:none;}
+.groc-name{font-size:13px;font-weight:500;}
+.groc-note{font-size:11px;color:var(--muted);margin-top:2px;}
+.groc-qty{font-size:12px;color:var(--muted);white-space:nowrap;text-align:right;}
+.amazon-tag{font-size:10px;font-weight:500;background:var(--orange-bg);color:var(--orange);border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle;}
+.tip-box{background:var(--gold-bg);border:0.5px solid var(--gold-bd);border-radius:var(--r);padding:12px 14px;font-size:13px;color:var(--gold);line-height:1.6;margin-bottom:16px;}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.meal{animation:fadeIn 0.3s ease both;}
 </style>
 </head>
 <body>
+
 <div class="tabbar">
-  <button class="active" id="tab-btn-today" onclick="showTab('today',this)">Today</button>
-  <button id="tab-btn-month" onclick="showTab('month',this)">Monthly</button>
-  <button id="tab-btn-diet" onclick="showTab('diet',this)">Diet</button>
-  <button id="tab-btn-grocery" onclick="showTab('grocery',this)">Grocery</button>
+  <button class="active" onclick="showTab('today',this)">Today</button>
+  <button onclick="showTab('month',this)">Monthly</button>
+  <button onclick="showTab('diet',this)">Diet</button>
+  <button onclick="showTab('grocery',this)">Grocery</button>
 </div>
 
+<!-- TODAY -->
 <div class="page active" id="page-today">
-<div class="hdr">
-  <div class="hdr-l"><div class="day" id="day-name">—</div><div class="dt" id="date-str">—</div></div>
-  <button class="wbtn" id="wbtn" onclick="toggleWorkout()"><span class="dot"></span><span id="wlabel">Rest day</span></button>
-</div>
-<div class="mgrid">
-  <div class="mc cal"><div class="mc-v" id="v-cal">0</div><div class="mc-l">Calories</div><div class="mc-s" id="r-cal">— remaining</div></div>
-  <div class="mc pro"><div class="mc-v" id="v-pro">0g</div><div class="mc-l">Protein</div><div class="mc-s" id="r-pro">—g target</div></div>
-  <div class="mc carb"><div class="mc-v" id="v-carb">0g</div><div class="mc-l">Carbs</div><div class="mc-s">195g target</div></div>
-  <div class="mc fat"><div class="mc-v" id="v-fat">0g</div><div class="mc-l">Fat</div><div class="mc-s">45g target</div></div>
-</div>
-<div class="bars">
-  <div><div class="br-m"><span>Calories</span><span id="p-cal" style="color:var(--green)">0%</span></div><div class="br-t"><div class="br-f" id="b-cal" style="width:0%;background:var(--green)"></div></div></div>
-  <div><div class="br-m"><span>Protein</span><span id="p-pro" style="color:var(--blue)">0%</span></div><div class="br-t"><div class="br-f" id="b-pro" style="width:0%;background:var(--blue)"></div></div></div>
-  <div><div class="br-m"><span>Steps</span><span id="p-steps" style="color:var(--purple)">0 / 8,000</span></div><div class="br-t"><div class="br-f" id="b-steps" style="width:0%;background:var(--purple)"></div></div></div>
-</div>
-<div class="sec">Meals</div>
-<div id="meals-list"></div>
-<div class="sec">Daily habits</div>
-<div id="habits-list"></div>
-<div class="sec">Steps</div>
-<div class="scard">
-  <div class="stop">
-    <div><div class="sbig" id="s-big">0</div><div class="slbl">steps today</div></div>
-    <div class="sstat" id="s-stat" style="color:var(--muted)">8,000 goal</div>
+
+<div class="hero">
+  <div class="hero-top">
+    <div class="hero-date">
+      <div class="weekday" id="day-name">—</div>
+      <div class="fulldate" id="date-str">—</div>
+    </div>
+    <button class="wbtn" id="wbtn" onclick="toggleWorkout()">
+      <span class="dot"></span><span id="wlabel">Rest day</span>
+    </button>
   </div>
-  <input type="range" id="s-slider" min="0" max="15000" step="100" value="0" oninput="syncSteps('slider',this.value)">
-  <div class="srow">
-    <input type="number" id="s-num" placeholder="Type steps...">
-    <button onclick="saveSteps()">Save</button>
+  <div class="quote-band" id="quote-band">
+    <div class="quote-text" id="quote-text">Every meal is a choice. Make it count.</div>
+    <div class="quote-sub" id="quote-sub">35.3% → 20% · Sept 22 is your deadline</div>
   </div>
-</div>
-<div class="summ" id="summ" style="display:none">
-  <div class="sh"><div class="sdot" id="sdot"></div><div class="st" id="stitle">In progress</div></div>
-  <div id="srows"></div>
-</div>
-<button class="rbtn" onclick="resetToday()">Reset today</button>
-<div class="toast" id="toast">Saved</div>
+  <div class="ring-row">
+    <div class="ring-wrap">
+      <div class="ring-container">
+        <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80">
+          <circle class="ring-bg" cx="40" cy="40" r="33"/>
+          <circle class="ring-fill" id="ring-cal" cx="40" cy="40" r="33" stroke="#4ade80" stroke-dasharray="207" stroke-dashoffset="207"/>
+        </svg>
+        <div class="ring-inner">
+          <div class="ring-val" id="rv-cal" style="color:var(--green)">0</div>
+          <div class="ring-lbl" style="color:var(--green)">cal</div>
+        </div>
+      </div>
+      <div class="ring-name">Calories</div>
+    </div>
+    <div class="ring-wrap">
+      <div class="ring-container">
+        <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80">
+          <circle class="ring-bg" cx="40" cy="40" r="33"/>
+          <circle class="ring-fill" id="ring-pro" cx="40" cy="40" r="33" stroke="#60a5fa" stroke-dasharray="207" stroke-dashoffset="207"/>
+        </svg>
+        <div class="ring-inner">
+          <div class="ring-val" id="rv-pro" style="color:var(--blue)">0g</div>
+          <div class="ring-lbl" style="color:var(--blue)">prot</div>
+        </div>
+      </div>
+      <div class="ring-name">Protein</div>
+    </div>
+    <div class="ring-wrap">
+      <div class="ring-container">
+        <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80">
+          <circle class="ring-bg" cx="40" cy="40" r="33"/>
+          <circle class="ring-fill" id="ring-steps" cx="40" cy="40" r="33" stroke="#f5a623" stroke-dasharray="207" stroke-dashoffset="207"/>
+        </svg>
+        <div class="ring-inner">
+          <div class="ring-val" id="rv-steps" style="color:var(--gold);font-size:12px;">0</div>
+          <div class="ring-lbl" style="color:var(--gold)">steps</div>
+        </div>
+      </div>
+      <div class="ring-name">Steps</div>
+    </div>
+  </div>
 </div>
 
-<div class="page" id="page-month">
-<div class="cal-hdr">
-  <div class="mtitle" id="mtitle">—</div>
-  <div class="cal-nav">
-    <button onclick="changeMonth(-1)">&#8249;</button>
-    <button onclick="changeMonth(1)">&#8250;</button>
+<div class="bars-section">
+  <div class="br-row"><div class="br-top"><span>Calories</span><span id="p-cal" style="color:var(--green)">0 / 1800</span></div><div class="br-track"><div class="br-fill" id="b-cal" style="width:0%;background:var(--green)"></div></div></div>
+  <div class="br-row"><div class="br-top"><span>Protein</span><span id="p-pro" style="color:var(--blue)">0 / 144g</span></div><div class="br-track"><div class="br-fill" id="b-pro" style="width:0%;background:var(--blue)"></div></div></div>
+</div>
+
+<div class="sec">Meals</div>
+<div class="meals-wrap" id="meals-list"></div>
+
+<div class="sec">Daily habits</div>
+<div class="meals-wrap" id="habits-list"></div>
+
+<div class="sec">Steps</div>
+<div class="steps-wrap">
+  <div class="scard">
+    <div class="stop">
+      <div><div class="sbig" id="s-big">0</div><div class="slbl">steps today</div></div>
+      <div class="sstat" id="s-stat" style="color:var(--muted)">8,000 goal</div>
+    </div>
+    <input type="range" id="s-slider" min="0" max="15000" step="100" value="0" oninput="syncSteps('slider',this.value)">
+    <div class="srow">
+      <input type="number" id="s-num" placeholder="Type steps...">
+      <button onclick="saveSteps()">Save</button>
+    </div>
   </div>
 </div>
-<div class="streak-card">
-  <div class="streak-num" id="snum">0</div>
-  <div><div class="streak-lbl" id="slbl">Day streak</div><div class="streak-sub" id="ssub">Start your streak today!</div></div>
+
+<div class="summ-wrap">
+  <div class="summ" id="summ" style="display:none">
+    <div class="sh"><div class="sdot" id="sdot"></div><div class="st" id="stitle">In progress</div></div>
+    <div id="srows"></div>
+  </div>
 </div>
-<div class="mstats">
-  <div class="mstat full"><div class="mstat-v" id="ms-f">0</div><div class="mstat-l">Perfect</div></div>
-  <div class="mstat part"><div class="mstat-v" id="ms-p">0</div><div class="mstat-l">Partial</div></div>
-  <div class="mstat miss"><div class="mstat-v" id="ms-m">0</div><div class="mstat-l">Missed</div></div>
+
+<div class="actions-wrap">
+  <button class="rbtn" onclick="resetToday()">Reset today</button>
+  <div class="toast" id="toast">Saved</div>
 </div>
-<div class="legend">
-  <div class="leg"><div class="leg-dot" style="background:var(--green);opacity:0.7;"></div>All meals</div>
-  <div class="leg"><div class="leg-dot" style="background:var(--amber);opacity:0.7;"></div>Partial</div>
-  <div class="leg"><div class="leg-dot" style="background:var(--red);opacity:0.7;"></div>Missed</div>
-  <div class="leg"><div class="leg-dot" style="background:var(--surface2);border:0.5px solid var(--border);"></div>Not logged</div>
 </div>
-<div class="days-hdr">
-  <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+
+<!-- MONTHLY -->
+<div class="page" id="page-month">
+<div class="cal-wrap">
+  <div class="cal-hdr">
+    <div class="mtitle" id="mtitle">—</div>
+    <div class="cal-nav">
+      <button onclick="changeMonth(-1)">&#8249;</button>
+      <button onclick="changeMonth(1)">&#8250;</button>
+    </div>
+  </div>
+  <div class="streak-card">
+    <div class="streak-num" id="snum">0</div>
+    <div><div class="streak-lbl" id="slbl">Day streak</div><div class="streak-sub" id="ssub">Start your streak today!</div></div>
+  </div>
+  <div class="mstats">
+    <div class="mstat"><div class="mstat-v" id="ms-f" style="color:var(--green)">0</div><div class="mstat-l">Perfect</div></div>
+    <div class="mstat"><div class="mstat-v" id="ms-p" style="color:var(--gold)">0</div><div class="mstat-l">Partial</div></div>
+    <div class="mstat"><div class="mstat-v" id="ms-m" style="color:var(--red)">0</div><div class="mstat-l">Missed</div></div>
+  </div>
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:var(--green);opacity:0.7;"></div>All meals</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--gold);opacity:0.7;"></div>Partial</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--red);opacity:0.7;"></div>Missed</div>
+  </div>
+  <div class="days-hdr"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+  <div class="cgrid" id="cgrid"></div>
 </div>
-<div class="cgrid" id="cgrid"></div>
+</div>
+
+<!-- DIET PLAN -->
+<div class="page" id="page-diet">
+<div style="padding:16px 16px 0;">
+  <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px;">Your meal plan</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Built for Sept 22 · Every meal counts</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+    <div style="background:var(--surface2);border:0.5px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:500;"><span style="color:var(--muted)">Target </span>1,750 cal</div>
+    <div style="background:var(--surface2);border:0.5px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:500;"><span style="color:var(--muted)">Protein </span>160g</div>
+    <div style="background:var(--gold-bg);border:0.5px solid var(--gold-bd);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:500;color:var(--gold);">Rest 1,800 · Workout 1,920</div>
+  </div>
+</div>
+<div class="content-wrap">
+  <div class="meal-card">
+    <div class="meal-card-time">7–8am · Breakfast</div>
+    <div class="meal-card-name">Egg + cottage cheese + Ezekiel bread</div>
+    <div class="meal-card-desc">1 whole egg + ½ cup egg whites + ½ cup low-fat cottage cheese stir-fried with 2 cups frozen vegetables. Season with garlic powder, salt, pepper. Cook in ½ tbsp avocado oil. 2 slices Ezekiel sprouted bread on the side.</div>
+    <div class="macros-row"><span class="mpill mp-p">44g protein</span><span class="mpill mp-c">40g carbs</span><span class="mpill mp-f">18g fat</span><span class="mpill mp-cal">500 cal</span></div>
+  </div>
+  <div class="meal-card">
+    <div class="meal-card-time">12–1pm · Lunch</div>
+    <div class="meal-card-name">Overnight oats + apple</div>
+    <div class="meal-card-desc">¾ cup oats + 1 cup nonfat milk + ½ cup low-fat Greek yogurt + 1 tsp cocoa powder + 2 tsp chia seeds + 1 tsp ground flaxseed + 1 scoop Orgain Protein Powder (Vanilla Bean). 1 medium apple on the side. Prep the night before.</div>
+    <div class="macros-row"><span class="mpill mp-p">40g protein</span><span class="mpill mp-c">94g carbs</span><span class="mpill mp-f">12g fat</span><span class="mpill mp-cal">635 cal</span></div>
+  </div>
+  <div class="meal-card">
+    <div class="meal-card-time">3–4pm · Snack</div>
+    <div class="meal-card-name">Greek yogurt + berries</div>
+    <div class="meal-card-desc">½ cup 0% Greek yogurt + ½ cup frozen berries (thawed).</div>
+    <div class="macros-row"><span class="mpill mp-p">10g protein</span><span class="mpill mp-c">15g carbs</span><span class="mpill mp-f">0g fat</span><span class="mpill mp-cal">100 cal</span></div>
+  </div>
+  <div class="meal-card">
+    <div class="meal-card-time">4–5pm · Mini snack</div>
+    <div class="meal-card-name">Mandarin</div>
+    <div class="meal-card-desc">1 mandarin. Easy and portable — bridges the gap between snack and dinner.</div>
+    <div class="macros-row"><span class="mpill mp-p">0g protein</span><span class="mpill mp-c">11g carbs</span><span class="mpill mp-f">0g fat</span><span class="mpill mp-cal">45 cal</span></div>
+  </div>
+  <div class="meal-card">
+    <div class="meal-card-time">7–8pm · Dinner</div>
+    <div class="meal-card-name">Chicken + carrots + broccoli + quinoa</div>
+    <div class="meal-card-desc">170g chicken breast (stir-fried or boiled) + 1 cup broccoli + 1 cup carrots + ½ cup cooked quinoa. Season with garlic powder, cumin, or paprika. Cook in ½ tbsp avocado oil.</div>
+    <div class="macros-row"><span class="mpill mp-p">50g protein</span><span class="mpill mp-c">35g carbs</span><span class="mpill mp-f">15g fat</span><span class="mpill mp-cal">520 cal</span></div>
+  </div>
+  <div class="meal-card" style="border-left-color:var(--orange-bd);">
+    <div class="meal-card-time">Post-workout · Workout days only</div>
+    <div class="meal-card-name">ON Gold Standard Whey</div>
+    <div class="meal-card-desc">1 scoop ON Gold Standard 100% Whey (Double Rich Chocolate) in 6–8oz cold water. Drink within 30–60 min after workout.</div>
+    <div class="macros-row"><span class="mpill mp-p">24g protein</span><span class="mpill mp-c">3g carbs</span><span class="mpill mp-f">2g fat</span><span class="mpill mp-cal">120 cal</span></div>
+  </div>
+  <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin:16px 0 8px;">Daily totals</div>
+  <div class="totals-box">
+    <div class="totals-title">Rest days (no shake)</div>
+    <div class="totals-grid">
+      <div class="total-item"><div class="total-val" style="color:var(--green)">1,800</div><div class="total-lbl">calories</div></div>
+      <div class="total-item"><div class="total-val" style="color:var(--blue)">144g</div><div class="total-lbl">protein</div></div>
+      <div class="total-item"><div class="total-val" style="color:var(--gold)">195g</div><div class="total-lbl">carbs</div></div>
+      <div class="total-item"><div class="total-val" style="color:var(--orange)">45g</div><div class="total-lbl">fat</div></div>
+    </div>
+  </div>
+  <div class="totals-box" style="border-color:var(--orange-bd);">
+    <div class="totals-title">Workout days (with shake)</div>
+    <div class="totals-grid">
+      <div class="total-item"><div class="total-val" style="color:var(--green)">1,920</div><div class="total-lbl">calories</div></div>
+      <div class="total-item"><div class="total-val" style="color:var(--blue)">168g</div><div class="total-lbl">protein</div></div>
+      <div class="total-item"><div class="total-val" style="color:var(--gold)">198g</div><div class="total-lbl">carbs</div></div>
+      <div class="total-item"><div class="total-val" style="color:var(--orange)">47g</div><div class="total-lbl">fat</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- GROCERY -->
+<div class="page" id="page-grocery">
+<div style="padding:16px 16px 0;">
+  <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px;">Shopping list</div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Trader Joe's · Weekly quantities for 7 days</div>
+  <div class="tip-box">Everything at Trader Joe's unless marked Amazon.</div>
+</div>
+<div class="content-wrap">
+  <div class="groc-sec">Proteins</div>
+  <div class="groc-card">
+    <div class="groc-item"><div><div class="groc-name">Boneless skinless chicken breast</div><div class="groc-note">170g per night at dinner</div></div><div class="groc-qty">~3.5 lbs</div></div>
+    <div class="groc-item"><div><div class="groc-name">Liquid egg whites (carton)</div><div class="groc-note">½ cup per day at breakfast</div></div><div class="groc-qty">1 carton (32oz)</div></div>
+    <div class="groc-item"><div><div class="groc-name">Whole eggs</div><div class="groc-note">1 per day at breakfast</div></div><div class="groc-qty">1 dozen</div></div>
+    <div class="groc-item"><div><div class="groc-name">Low-fat Greek yogurt (0%)</div><div class="groc-note">½ cup lunch + ½ cup snack daily</div></div><div class="groc-qty">1 tub (32oz)</div></div>
+    <div class="groc-item"><div><div class="groc-name">Low-fat cottage cheese</div><div class="groc-note">½ cup per day at breakfast</div></div><div class="groc-qty">1 tub (24oz)</div></div>
+    <div class="groc-item"><div><div class="groc-name">Nonfat milk</div><div class="groc-note">1 cup per day in oats</div></div><div class="groc-qty">1 half gallon</div></div>
+    <div class="groc-item"><div><div class="groc-name">Orgain Plant-Based Protein, Vanilla Bean <span class="amazon-tag">Amazon</span></div><div class="groc-note">1 scoop/day in lunch oats</div></div><div class="groc-qty">1 tub (2 lbs)</div></div>
+    <div class="groc-item"><div><div class="groc-name">ON Gold Standard Whey, Chocolate <span class="amazon-tag">Amazon</span></div><div class="groc-note">1 scoop post-workout on training days</div></div><div class="groc-qty">1 tub (5 lbs)</div></div>
+  </div>
+  <div class="groc-sec">Grains & bread</div>
+  <div class="groc-card">
+    <div class="groc-item"><div><div class="groc-name">Rolled oats</div><div class="groc-note">¾ cup per day in overnight oats</div></div><div class="groc-qty">1 bag (18oz)</div></div>
+    <div class="groc-item"><div><div class="groc-name">Ezekiel sprouted bread</div><div class="groc-note">2 slices per day at breakfast — freezer section</div></div><div class="groc-qty">1 loaf</div></div>
+    <div class="groc-item"><div><div class="groc-name">Quinoa</div><div class="groc-note">½ cup cooked per day at dinner</div></div><div class="groc-qty">1 bag (16oz)</div></div>
+  </div>
+  <div class="groc-sec">Vegetables</div>
+  <div class="groc-card">
+    <div class="groc-item"><div><div class="groc-name">Frozen stir-fry vegetable medley</div><div class="groc-note">2 cups per day at breakfast</div></div><div class="groc-qty">3 bags (16oz)</div></div>
+    <div class="groc-item"><div><div class="groc-name">Broccoli (fresh or frozen)</div><div class="groc-note">1 cup per day at dinner</div></div><div class="groc-qty">1 large head</div></div>
+    <div class="groc-item"><div><div class="groc-name">Carrots</div><div class="groc-note">1 cup per day at dinner</div></div><div class="groc-qty">1 bag (2 lbs)</div></div>
+  </div>
+  <div class="groc-sec">Fruits</div>
+  <div class="groc-card">
+    <div class="groc-item"><div><div class="groc-name">Apples (medium)</div><div class="groc-note">1 per day with lunch oats</div></div><div class="groc-qty">7 apples</div></div>
+    <div class="groc-item"><div><div class="groc-name">Mandarins</div><div class="groc-note">1 per day after snack</div></div><div class="groc-qty">1 bag (3 lbs)</div></div>
+    <div class="groc-item"><div><div class="groc-name">Frozen mixed berries</div><div class="groc-note">½ cup per day in snack</div></div><div class="groc-qty">1 bag (16oz)</div></div>
+  </div>
+  <div class="groc-sec">Pantry & oils</div>
+  <div class="groc-card">
+    <div class="groc-item"><div><div class="groc-name">Avocado oil</div><div class="groc-note">½ tbsp at breakfast + dinner</div></div><div class="groc-qty">1 bottle</div></div>
+    <div class="groc-item"><div><div class="groc-name">Chia seeds</div><div class="groc-note">2 tsp per day in oats</div></div><div class="groc-qty">1 bag</div></div>
+    <div class="groc-item"><div><div class="groc-name">Ground flaxseed</div><div class="groc-note">1 tsp per day in oats — baking aisle</div></div><div class="groc-qty">1 bag</div></div>
+    <div class="groc-item"><div><div class="groc-name">Cocoa powder (unsweetened)</div><div class="groc-note">1 tsp per day in oats</div></div><div class="groc-qty">1 tin</div></div>
+    <div class="groc-item"><div><div class="groc-name">Garlic powder</div><div class="groc-note">Seasoning for breakfast and dinner</div></div><div class="groc-qty">1 jar</div></div>
+    <div class="groc-item"><div><div class="groc-name">Cumin + paprika</div><div class="groc-note">Seasoning for chicken at dinner</div></div><div class="groc-qty">1 jar each</div></div>
+    <div class="groc-item"><div><div class="groc-name">Salt + black pepper</div><div class="groc-note">General seasoning</div></div><div class="groc-qty">existing</div></div>
+  </div>
+</div>
 </div>
 
 <script>
+const QUOTES=[
+  {text:"Every meal is a choice. Make it count.",sub:"35.3% → 20% · Sept 22 is your deadline"},
+  {text:"Your body is built in the kitchen, not the gym.",sub:"Stay on plan — one day at a time"},
+  {text:"Discipline is choosing what you want most over what you want now.",sub:"Log every meal. No exceptions."},
+  {text:"The next 22 weeks will go by either way. Make them count.",sub:"You are building a new body"},
+  {text:"Consistency beats perfection every single time.",sub:"80% adherence gets you to 25%. 100% gets you to 20%."},
+  {text:"Your android fat is the first to go when you eat clean.",sub:"Belly fat responds fast to diet + exercise"},
+  {text:"Protein first. Always.",sub:"144g minimum — every single day"},
+  {text:"Progress is invisible daily, undeniable weekly.",sub:"Trust the process and stay consistent"},
+];
+
 const MEALS=[
   {id:'breakfast',name:'Egg + cottage cheese + Ezekiel bread',time:'7–8am',cal:500,protein:44,carbs:40,fat:18},
   {id:'lunch',name:'Overnight oats + apple',time:'12–1pm',cal:635,protein:40,carbs:94,fat:12},
@@ -205,7 +475,7 @@ const HABITS=[
   {id:'water3',name:'Water 3',note:'Third glass — with dinner'},
   {id:'multivitamin',name:'Multivitamin',note:'Take with food — best absorbed with a meal'},
   {id:'fiber',name:'Fiber supplement',note:'Take with a full glass of water'},
-  {id:'prepareoats',name:'Prepare overnight oats',note:'Prep tonight\'s oats before bed for tomorrow\'s lunch'},
+  {id:'prepareoats',name:'Prepare overnight oats',note:"Prep tonight's oats before bed for tomorrow's lunch"},
   {id:'cleandishes',name:'Clean dishes',note:'Keep the kitchen clean — sets you up for tomorrow'},
 ];
 const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -236,7 +506,14 @@ async function init(){
   const saved=await getDay(todayKey());
   if(saved)S={checked:saved.checked||{},habits:saved.habits||{},isWorkout:saved.isWorkout||false,steps:saved.steps||0};
   else S={checked:{},habits:{},isWorkout:false,steps:0};
+  setQuote();
   renderToday();
+}
+
+function setQuote(){
+  const q=QUOTES[new Date().getDay()%QUOTES.length];
+  document.getElementById('quote-text').textContent=q.text;
+  document.getElementById('quote-sub').textContent=q.sub;
 }
 
 function renderToday(){
@@ -270,8 +547,8 @@ function renderHabits(){
   HABITS.forEach(h=>{
     const done=!!S.habits[h.id];
     const el=document.createElement('div');
-    el.className='meal'+(done?' done':'');
-    el.onclick=async()=>{S.habits[h.id]=!S.habits[h.id];await save();renderHabits();updateSummary();};
+    el.className='meal habit-item'+(done?' done':'');
+    el.onclick=async()=>{S.habits[h.id]=!S.habits[h.id];await save();renderHabits();updateSummary(0,0,0,0);};
     el.innerHTML=`<div class="chk"><div class="chk-i"></div><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="mb"><div class="mn">${h.name}</div><div class="mi">${h.note}</div></div>`;
     c.appendChild(el);
   });
@@ -282,8 +559,12 @@ function renderSteps(){
   document.getElementById('s-big').textContent=s.toLocaleString();
   document.getElementById('s-slider').value=Math.min(s,15000);
   document.getElementById('s-num').value=s||'';
-  document.getElementById('b-steps').style.width=Math.min(Math.round(s/8000*100),100)+'%';
-  document.getElementById('p-steps').textContent=s.toLocaleString()+' / 8,000';
+  const pct=Math.min(Math.round(s/8000*100),100);
+  document.getElementById('b-steps')?null:null;
+  document.getElementById('p-steps')?null:null;
+  document.getElementById('rv-steps').textContent=s>=1000?Math.round(s/1000)+'k':s;
+  const arcSteps=207*(1-pct/100);
+  document.getElementById('ring-steps').style.strokeDashoffset=arcSteps;
   const el=document.getElementById('s-stat');
   if(s>=8000){el.textContent='Goal reached!';el.style.color='var(--green)';}
   else{el.textContent=(8000-s).toLocaleString()+' to go';el.style.color='var(--muted)';}
@@ -293,31 +574,33 @@ function updateTotals(){
   let cal=0,pro=0,carb=0,fat=0;
   MEALS.forEach(m=>{if(S.checked[m.id]){cal+=m.cal;pro+=m.protein;carb+=m.carbs;fat+=m.fat;}});
   const cT=S.isWorkout?1920:1800,pT=S.isWorkout?168:144;
-  document.getElementById('v-cal').textContent=cal.toLocaleString();
-  document.getElementById('v-pro').textContent=pro+'g';
-  document.getElementById('v-carb').textContent=carb+'g';
-  document.getElementById('v-fat').textContent=fat+'g';
-  const rem=cT-cal,rc=document.getElementById('r-cal');
-  if(rem>0){rc.textContent=rem.toLocaleString()+' remaining';rc.style.color='var(--muted)';}
-  else if(rem===0){rc.textContent='On target!';rc.style.color='var(--green)';}
-  else{rc.textContent=Math.abs(rem)+' over';rc.style.color='var(--red)';}
-  document.getElementById('r-pro').textContent=pT+'g target';
-  const cp=Math.min(Math.round(cal/cT*100),100),pp=Math.min(Math.round(pro/pT*100),100);
+
+  document.getElementById('rv-cal').textContent=cal;
+  document.getElementById('rv-pro').textContent=pro+'g';
+
+  const cp=Math.min(Math.round(cal/cT*100),100);
+  const pp=Math.min(Math.round(pro/pT*100),100);
+
+  document.getElementById('ring-cal').style.strokeDashoffset=207*(1-cp/100);
+  document.getElementById('ring-cal').style.stroke=cal>cT*1.05?'#f87171':'#4ade80';
+  document.getElementById('ring-pro').style.strokeDashoffset=207*(1-pp/100);
+
   document.getElementById('b-cal').style.width=cp+'%';
   document.getElementById('b-cal').style.background=cal>cT*1.05?'var(--red)':'var(--green)';
   document.getElementById('b-pro').style.width=pp+'%';
-  document.getElementById('p-cal').textContent=cp+'%';
-  document.getElementById('p-pro').textContent=pp+'%';
+  document.getElementById('p-cal').textContent=cal+' / '+cT;
+  document.getElementById('p-pro').textContent=pro+'g / '+pT+'g';
+
   renderSummary(cal,pro,cT,pT);
 }
 
 function renderSummary(cal,pro,cT,pT){
   const logged=Object.values(S.checked).filter(Boolean).length;
-  if(!logged&&!S.steps){document.getElementById('summ').style.display='none';return;}
+  if(!logged&&!(S.steps>0)){document.getElementById('summ').style.display='none';return;}
   document.getElementById('summ').style.display='block';
   const total=MEALS.filter(m=>m.optional?S.isWorkout:true).length;
   const cOk=cal>=cT*.9&&cal<=cT*1.05,pOk=pro>=pT,sOk=(S.steps||0)>=8000,mOk=logged>=total;
-  document.getElementById('sdot').style.background=cOk&&pOk&&sOk&&mOk?'var(--green)':'var(--amber)';
+  document.getElementById('sdot').style.background=cOk&&pOk&&sOk&&mOk?'var(--green)':'var(--gold)';
   document.getElementById('stitle').textContent=cOk&&pOk&&sOk&&mOk?'Day complete!':'In progress';
   document.getElementById('srows').innerHTML=[
     {l:'Calories',v:cal+' / '+cT,c:cOk?'ok':cal>cT*1.05?'bad':'warn'},
@@ -325,6 +608,13 @@ function renderSummary(cal,pro,cT,pT){
     {l:'Meals',v:logged+' / '+total,c:mOk?'ok':'warn'},
     {l:'Steps',v:(S.steps||0).toLocaleString()+' / 8,000',c:sOk?'ok':(S.steps||0)>=6000?'warn':'bad'},
   ].map(r=>`<div class="sr"><span>${r.l}</span><span class="${r.c}">${r.v}</span></div>`).join('');
+}
+
+function updateSummary(){
+  let cal=0,pro=0;
+  MEALS.forEach(m=>{if(S.checked[m.id]){cal+=m.cal;pro+=m.protein;}});
+  const cT=S.isWorkout?1920:1800,pT=S.isWorkout?168:144;
+  renderSummary(cal,pro,cT,pT);
 }
 
 function syncSteps(src,val){
@@ -361,8 +651,7 @@ async function renderMonth(){
   const dim=new Date(y,m,0).getDate();
   const fd=new Date(y,m-1,1).getDay();
   const off=(fd+6)%7;
-  const grid=document.getElementById('cgrid');
-  grid.innerHTML='';
+  const grid=document.getElementById('cgrid');grid.innerHTML='';
   let full=0,part=0,miss=0;
   for(let i=0;i<off;i++){const e=document.createElement('div');e.className='cc empty';grid.appendChild(e);}
   for(let d=1;d<=dim;d++){
@@ -398,209 +687,10 @@ async function renderMonth(){
     if(s==='full'||s==='partial'){streak++;dd.setDate(dd.getDate()-1);}else break;
   }
   document.getElementById('snum').textContent=streak;
-  const sub=streak===0?'Start your streak today!':streak<7?streak+' day'+(streak>1?'s':'')+' strong — keep going!':streak<30?'Great consistency — '+streak+' days!':'Incredible — '+streak+' days!';
-  document.getElementById('ssub').textContent=sub;
+  document.getElementById('ssub').textContent=streak===0?'Log today to start your streak!':streak<7?streak+' day'+(streak>1?'s':'')+' strong — keep going!':streak<30?'Great consistency — '+streak+' days!':'Incredible — '+streak+' days!';
 }
 
 init();
 </script>
-
-<!-- DIET PLAN TAB -->
-<div class="page" id="page-diet">
-<style>
-.diet-title{font-size:22px;font-weight:600;letter-spacing:-0.5px;margin-bottom:4px;}
-.diet-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
-.target-row{display:flex;gap:8px;margin-bottom:16px;}
-.target-pill{background:var(--surface2);border:0.5px solid var(--border);border-radius:20px;padding:6px 12px;font-size:12px;font-weight:500;}
-.target-pill span{color:var(--muted);margin-right:4px;}
-.meal-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:8px;}
-.meal-card-time{font-size:10px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:6px;}
-.meal-card-name{font-size:15px;font-weight:600;margin-bottom:6px;}
-.meal-card-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;}
-.meal-card-macros{display:flex;gap:6px;flex-wrap:wrap;}
-.macro-pill{font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px;}
-.mp-p{background:rgba(96,165,250,0.12);color:#60a5fa;}
-.mp-c{background:rgba(251,191,36,0.12);color:#fbbf24;}
-.mp-f{background:rgba(192,132,252,0.12);color:#c084fc;}
-.mp-cal{background:rgba(52,211,153,0.12);color:#34d399;}
-.totals-box{background:var(--surface);border:0.5px solid var(--green-bd);border-radius:var(--r);padding:14px;margin-bottom:16px;}
-.totals-box-title{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:10px;}
-.totals-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
-.total-item{text-align:center;}
-.total-val{font-size:18px;font-weight:600;font-family:'DM Mono',monospace;}
-.total-lbl{font-size:10px;color:var(--muted);margin-top:2px;}
-</style>
-
-<div class="diet-title">Daily meal plan</div>
-<div class="diet-sub">Your complete nutrition template</div>
-
-<div class="target-row" style="flex-wrap:wrap;">
-  <div class="target-pill"><span>Target</span>1,750 cal</div>
-  <div class="target-pill"><span>Protein</span>160g</div>
-  <div class="target-pill"><span>Rest days</span>1,800 cal</div>
-  <div class="target-pill"><span>Workout days</span>1,920 cal</div>
-</div>
-
-<div class="sec">Meals</div>
-
-<div class="meal-card">
-  <div class="meal-card-time">7–8am · Breakfast</div>
-  <div class="meal-card-name">Egg + cottage cheese stir-fry + Ezekiel bread</div>
-  <div class="meal-card-desc">1 whole egg + ½ cup egg whites + ½ cup low-fat cottage cheese stir-fried with 2 cups frozen vegetables. Season with garlic powder, salt, pepper. Cook in ½ tbsp avocado oil. 2 slices Ezekiel sprouted bread on the side.</div>
-  <div class="meal-card-macros">
-    <span class="macro-pill mp-p">44g protein</span>
-    <span class="macro-pill mp-c">40g carbs</span>
-    <span class="macro-pill mp-f">18g fat</span>
-    <span class="macro-pill mp-cal">500 cal</span>
-  </div>
-</div>
-
-<div class="meal-card">
-  <div class="meal-card-time">12–1pm · Lunch</div>
-  <div class="meal-card-name">Overnight oats + apple</div>
-  <div class="meal-card-desc">¾ cup oats + 1 cup nonfat milk + ½ cup low-fat Greek yogurt + 1 tsp cocoa powder + 2 tsp chia seeds + 1 tsp ground flaxseed + 1 scoop Orgain Organic Plant-Based Protein Powder (Vanilla Bean). 1 medium apple on the side. Prep the night before, keep refrigerated until lunch.</div>
-  <div class="meal-card-macros">
-    <span class="macro-pill mp-p">40g protein</span>
-    <span class="macro-pill mp-c">94g carbs</span>
-    <span class="macro-pill mp-f">12g fat</span>
-    <span class="macro-pill mp-cal">635 cal</span>
-  </div>
-</div>
-
-<div class="meal-card">
-  <div class="meal-card-time">3–4pm · Snack</div>
-  <div class="meal-card-name">Greek yogurt + berries</div>
-  <div class="meal-card-desc">½ cup 0% Greek yogurt + ½ cup frozen berries (thawed).</div>
-  <div class="meal-card-macros">
-    <span class="macro-pill mp-p">10g protein</span>
-    <span class="macro-pill mp-c">15g carbs</span>
-    <span class="macro-pill mp-f">0g fat</span>
-    <span class="macro-pill mp-cal">100 cal</span>
-  </div>
-</div>
-
-<div class="meal-card">
-  <div class="meal-card-time">4–5pm · Mini snack</div>
-  <div class="meal-card-name">Mandarin</div>
-  <div class="meal-card-desc">1 mandarin. Easy and portable — bridges the gap between snack and dinner.</div>
-  <div class="meal-card-macros">
-    <span class="macro-pill mp-p">0g protein</span>
-    <span class="macro-pill mp-c">11g carbs</span>
-    <span class="macro-pill mp-f">0g fat</span>
-    <span class="macro-pill mp-cal">45 cal</span>
-  </div>
-</div>
-
-<div class="meal-card">
-  <div class="meal-card-time">7–8pm · Dinner</div>
-  <div class="meal-card-name">Chicken + carrots + broccoli + quinoa</div>
-  <div class="meal-card-desc">170g chicken breast (stir-fried or boiled) + 1 cup broccoli + 1 cup carrots + ½ cup cooked quinoa. Season with garlic powder, cumin, or paprika. Cook in ½ tbsp avocado oil.</div>
-  <div class="meal-card-macros">
-    <span class="macro-pill mp-p">50g protein</span>
-    <span class="macro-pill mp-c">35g carbs</span>
-    <span class="macro-pill mp-f">15g fat</span>
-    <span class="macro-pill mp-cal">520 cal</span>
-  </div>
-</div>
-
-<div class="meal-card" style="border-color:var(--purple-bd);">
-  <div class="meal-card-time">Post-workout only · Workout days</div>
-  <div class="meal-card-name">ON Gold Standard Whey</div>
-  <div class="meal-card-desc">1 scoop ON Gold Standard 100% Whey (Double Rich Chocolate) mixed with 6–8oz cold water. Drink within 30–60 min after workout.</div>
-  <div class="meal-card-macros">
-    <span class="macro-pill mp-p">24g protein</span>
-    <span class="macro-pill mp-c">3g carbs</span>
-    <span class="macro-pill mp-f">2g fat</span>
-    <span class="macro-pill mp-cal">120 cal</span>
-  </div>
-</div>
-
-<div class="sec">Daily totals</div>
-<div class="totals-box">
-  <div class="totals-box-title">Rest days (no shake)</div>
-  <div class="totals-grid">
-    <div class="total-item"><div class="total-val" style="color:var(--green)">1,800</div><div class="total-lbl">calories</div></div>
-    <div class="total-item"><div class="total-val" style="color:var(--blue)">144g</div><div class="total-lbl">protein</div></div>
-    <div class="total-item"><div class="total-val" style="color:var(--amber)">195g</div><div class="total-lbl">carbs</div></div>
-    <div class="total-item"><div class="total-val" style="color:var(--purple)">45g</div><div class="total-lbl">fat</div></div>
-  </div>
-</div>
-<div class="totals-box" style="border-color:var(--purple-bd);">
-  <div class="totals-box-title">Workout days (with shake)</div>
-  <div class="totals-grid">
-    <div class="total-item"><div class="total-val" style="color:var(--green)">1,920</div><div class="total-lbl">calories</div></div>
-    <div class="total-item"><div class="total-val" style="color:var(--blue)">168g</div><div class="total-lbl">protein</div></div>
-    <div class="total-item"><div class="total-val" style="color:var(--amber)">198g</div><div class="total-lbl">carbs</div></div>
-    <div class="total-item"><div class="total-val" style="color:var(--purple)">47g</div><div class="total-lbl">fat</div></div>
-  </div>
-</div>
-</div>
-
-<!-- GROCERY TAB -->
-<div class="page" id="page-grocery">
-<style>
-.groc-title{font-size:22px;font-weight:600;letter-spacing:-0.5px;margin-bottom:4px;}
-.groc-sub{font-size:12px;color:var(--muted);margin-bottom:16px;}
-.groc-section{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin:16px 0 8px;padding-bottom:6px;border-bottom:0.5px solid var(--border);}
-.groc-item{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:0.5px solid var(--border);}
-.groc-item:last-child{border-bottom:none;}
-.groc-left{flex:1;}
-.groc-name{font-size:13px;font-weight:500;color:var(--text);}
-.groc-note{font-size:11px;color:var(--muted);margin-top:2px;}
-.groc-qty{font-size:12px;color:var(--muted);text-align:right;white-space:nowrap;margin-left:12px;}
-.amazon-tag{font-size:10px;font-weight:500;background:var(--amber-bg);color:var(--amber);border:0.5px solid var(--amber-bd);border-radius:4px;padding:1px 5px;margin-left:6px;vertical-align:middle;}
-.groc-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:0 14px;margin-bottom:8px;}
-.tip{background:var(--green-bg);border:0.5px solid var(--green-bd);border-radius:var(--r);padding:12px 14px;font-size:12px;color:var(--green);line-height:1.6;margin-bottom:16px;}
-</style>
-
-<div class="groc-title">Weekly shopping list</div>
-<div class="groc-sub">Trader Joe's · Quantities for 7 days</div>
-<div class="tip">Everything below is at Trader Joe's unless marked Amazon.</div>
-
-<div class="groc-section">Proteins</div>
-<div class="groc-card">
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Boneless skinless chicken breast</div><div class="groc-note">170g per night at dinner</div></div><div class="groc-qty">~3.5 lbs</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Liquid egg whites (carton)</div><div class="groc-note">½ cup per day at breakfast</div></div><div class="groc-qty">1 carton (32oz)</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Whole eggs</div><div class="groc-note">1 per day at breakfast</div></div><div class="groc-qty">1 dozen</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Low-fat Greek yogurt (0%)</div><div class="groc-note">½ cup lunch + ½ cup snack daily</div></div><div class="groc-qty">1 tub (32oz)</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Low-fat cottage cheese</div><div class="groc-note">½ cup per day at breakfast</div></div><div class="groc-qty">1 tub (24oz)</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Nonfat milk</div><div class="groc-note">1 cup per day in oats</div></div><div class="groc-qty">1 half gallon</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Orgain Plant-Based Protein, Vanilla Bean<span class="amazon-tag">Amazon</span></div><div class="groc-note">1 scoop/day in lunch oats</div></div><div class="groc-qty">1 tub (2 lbs)</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">ON Gold Standard Whey, Chocolate<span class="amazon-tag">Amazon</span></div><div class="groc-note">1 scoop post-workout on training days</div></div><div class="groc-qty">1 tub (5 lbs)</div></div>
-</div>
-
-<div class="groc-section">Grains & bread</div>
-<div class="groc-card">
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Rolled oats</div><div class="groc-note">¾ cup per day in overnight oats</div></div><div class="groc-qty">1 bag (18oz)</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Ezekiel sprouted bread</div><div class="groc-note">2 slices per day at breakfast — freezer section</div></div><div class="groc-qty">1 loaf</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Quinoa</div><div class="groc-note">½ cup cooked per day at dinner</div></div><div class="groc-qty">1 bag (16oz)</div></div>
-</div>
-
-<div class="groc-section">Vegetables</div>
-<div class="groc-card">
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Frozen stir-fry vegetable medley</div><div class="groc-note">2 cups per day at breakfast</div></div><div class="groc-qty">3 bags (16oz)</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Broccoli (fresh or frozen)</div><div class="groc-note">1 cup per day at dinner</div></div><div class="groc-qty">1 large head</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Carrots</div><div class="groc-note">1 cup per day at dinner</div></div><div class="groc-qty">1 bag (2 lbs)</div></div>
-</div>
-
-<div class="groc-section">Fruits</div>
-<div class="groc-card">
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Apples (medium)</div><div class="groc-note">1 per day with lunch oats</div></div><div class="groc-qty">7 apples</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Mandarins</div><div class="groc-note">1 per day after snack</div></div><div class="groc-qty">1 bag (3 lbs)</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Frozen mixed berries</div><div class="groc-note">½ cup per day in snack</div></div><div class="groc-qty">1 bag (16oz)</div></div>
-</div>
-
-<div class="groc-section">Pantry & oils</div>
-<div class="groc-card">
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Avocado oil</div><div class="groc-note">½ tbsp at breakfast + dinner</div></div><div class="groc-qty">1 bottle</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Chia seeds</div><div class="groc-note">2 tsp per day in oats</div></div><div class="groc-qty">1 bag</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Ground flaxseed</div><div class="groc-note">1 tsp per day in oats — baking aisle</div></div><div class="groc-qty">1 bag</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Cocoa powder (unsweetened)</div><div class="groc-note">1 tsp per day in oats</div></div><div class="groc-qty">1 tin</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Garlic powder</div><div class="groc-note">Seasoning for breakfast and dinner</div></div><div class="groc-qty">1 jar</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Cumin + paprika</div><div class="groc-note">Seasoning for chicken at dinner</div></div><div class="groc-qty">1 jar each</div></div>
-  <div class="groc-item"><div class="groc-left"><div class="groc-name">Salt + black pepper</div><div class="groc-note">General seasoning</div></div><div class="groc-qty">existing</div></div>
-</div>
-</div>
-
 </body>
 </html>
