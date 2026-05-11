@@ -1,0 +1,14 @@
+{
+  "name": "Diet Log",
+  "short_name": "Diet Log",
+  "description": "Daily meals, calories, and steps — built for Sept 22",
+  "display": "standalone",
+  "background_color": "#0d0d0d",
+  "theme_color": "#0d0d0d",
+  "start_url": ".",
+  "scope": ".",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
