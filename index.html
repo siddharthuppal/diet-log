@@ -21,8 +21,8 @@
   --r:14px;--r-sm:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html{background:var(--bg);}
-body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);max-width:440px;margin:0 auto;min-height:100vh;}
+html{background:var(--bg);overflow-x:hidden;}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);max-width:440px;margin:0 auto;min-height:100vh;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
 
 /* Tabbar */
 .tabbar{display:flex;background:var(--surface);border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:10;padding-top:env(safe-area-inset-top);overflow-x:auto;}
@@ -39,7 +39,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 .hero-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;}
 .hero-date .weekday{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--text);letter-spacing:-0.5px;line-height:1;}
 .hero-date .fulldate{font-size:12px;color:var(--muted);margin-top:4px;}
-.wbtn{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:7px 13px;border-radius:20px;cursor:pointer;border:0.5px solid var(--border);background:var(--surface2);color:var(--muted);transition:all 0.2s;}
+.wbtn{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;padding:12px 16px;min-height:44px;border-radius:20px;cursor:pointer;border:0.5px solid var(--border);background:var(--surface2);color:var(--muted);transition:all 0.2s;}
 .wbtn .dot{width:6px;height:6px;border-radius:50%;background:var(--muted);}
 .wbtn.on{background:var(--gold-bg);border-color:var(--gold-bd);color:var(--gold);}
 .wbtn.on .dot{background:var(--gold);}
@@ -110,7 +110,7 @@ input[type=range]{width:100%;margin:0 0 10px;accent-color:var(--gold);cursor:poi
 .srow input[type=number]{flex:1;background:var(--surface2);border:0.5px solid var(--border);border-radius:var(--r-sm);color:var(--text);font-family:'DM Mono',monospace;font-size:16px;padding:10px 12px;outline:none;-moz-appearance:textfield;}
 .srow input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 .srow input[type=number]:focus{border-color:var(--gold-bd);}
-.srow button{background:var(--gold-bg);border:0.5px solid var(--gold-bd);border-radius:var(--r-sm);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:10px 16px;cursor:pointer;}
+.srow button{background:var(--gold-bg);border:0.5px solid var(--gold-bd);border-radius:var(--r-sm);color:var(--gold);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:13px 16px;min-height:44px;cursor:pointer;}
 
 /* Summary */
 .summ-wrap{padding:0 16px;}
@@ -126,7 +126,7 @@ input[type=range]{width:100%;margin:0 0 10px;accent-color:var(--gold);cursor:poi
 
 /* Actions */
 .actions-wrap{padding:0 16px;}
-.rbtn{width:100%;padding:13px;border-radius:var(--r);border:0.5px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:4px;}
+.rbtn{width:100%;padding:14px;min-height:44px;border-radius:var(--r);border:0.5px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:4px;}
 .rbtn:active{background:var(--surface);}
 .toast{text-align:center;font-size:11px;color:var(--green);padding:8px;opacity:0;transition:opacity 0.3s;}
 .toast.show{opacity:1;}
@@ -136,7 +136,7 @@ input[type=range]{width:100%;margin:0 0 10px;accent-color:var(--gold);cursor:poi
 .cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
 .cal-hdr .mtitle{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:-0.3px;}
 .cal-nav{display:flex;gap:8px;}
-.cal-nav button{background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;color:var(--text);font-size:18px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.cal-nav button{background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;color:var(--text);font-size:18px;width:44px;height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 .streak-card{background:var(--gold-bg);border:0.5px solid var(--gold-bd);border-radius:var(--r);padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
 .streak-num{font-family:'Syne',sans-serif;font-size:40px;font-weight:800;color:var(--gold);line-height:1;min-width:52px;}
 .streak-lbl{font-size:14px;font-weight:500;color:var(--gold);}
@@ -281,7 +281,7 @@ input[type=range]{width:100%;margin:0 0 10px;accent-color:var(--gold);cursor:poi
     </div>
     <input type="range" id="s-slider" min="0" max="15000" step="100" value="0" oninput="syncSteps('slider',this.value)">
     <div class="srow">
-      <input type="number" id="s-num" placeholder="Type steps...">
+      <input type="number" id="s-num" inputmode="numeric" autocomplete="off" placeholder="Type steps...">
       <button onclick="saveSteps()">Save</button>
     </div>
   </div>
