@@ -486,7 +486,9 @@ firebase.initializeApp({
   appId:             "1:354368501594:web:4b405d307e5bcfe852e563"
 });
 const fsdb = firebase.firestore();
-fsdb.enablePersistence().catch(()=>{}); // enables offline support
+// Enable offline persistence using the current API
+try { fsdb.settings({ cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED }); } catch(e){}
+fsdb.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
 const QUOTES=[
   {text:"Every meal is a choice. Make it count.",sub:"35.3% → 26% · Sept 22 is your deadline"},
@@ -530,7 +532,17 @@ async function getDay(k){try{const d=await daysCol().doc(k).get();return d.exist
 async function setDay(k,d){try{await daysCol().doc(k).set({date:k,...d});}catch(e){}}
 async function allDays(){try{const s=await daysCol().get();return s.docs.map(d=>d.data());}catch(e){return[];}}
 
-function signIn(){firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());}
+function signIn(){
+  firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
+    .catch(err=>{
+      // Popup blocked — fall back to redirect
+      if(err.code==='auth/popup-blocked'||err.code==='auth/popup-closed-by-user'){
+        firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+      } else {
+        console.error('Sign-in error:',err.code,err.message);
+      }
+    });
+}
 function doSignOut(){firebase.auth().signOut();}
 
 async function save(){await setDay(todayKey(),S);const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1200);}
