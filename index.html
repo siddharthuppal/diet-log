@@ -478,12 +478,12 @@ input[type=range]{width:100%;margin:0 0 10px;accent-color:var(--gold);cursor:poi
 //   4. Firestore rules → Publish these rules:
 //      match /users/{uid}/days/{doc} { allow read, write: if request.auth.uid == uid; }
 firebase.initializeApp({
-  apiKey:            "REPLACE_ME",
-  authDomain:        "REPLACE_ME.firebaseapp.com",
-  projectId:         "REPLACE_ME",
-  storageBucket:     "REPLACE_ME.appspot.com",
-  messagingSenderId: "REPLACE_ME",
-  appId:             "REPLACE_ME"
+  apiKey:            "AIzaSyCkNYt1DdzMEPblPi3zatsjyPBbyG7aJjs",
+  authDomain:        "diet-tracker-3b6e4.firebaseapp.com",
+  projectId:         "diet-tracker-3b6e4",
+  storageBucket:     "diet-tracker-3b6e4.firebasestorage.app",
+  messagingSenderId: "354368501594",
+  appId:             "1:354368501594:web:4b405d307e5bcfe852e563"
 });
 const fsdb = firebase.firestore();
 fsdb.enablePersistence().catch(()=>{}); // enables offline support
