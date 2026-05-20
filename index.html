@@ -530,7 +530,7 @@ async function getDay(k){try{const d=await daysCol().doc(k).get();return d.exist
 async function setDay(k,d){try{await daysCol().doc(k).set({date:k,...d});}catch(e){}}
 async function allDays(){try{const s=await daysCol().get();return s.docs.map(d=>d.data());}catch(e){return[];}}
 
-function signIn(){firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());}
+function signIn(){firebase.auth().signInWithRedirect(new firebase.auth.GoogleAuthProvider());}
 function doSignOut(){firebase.auth().signOut();}
 
 async function save(){await setDay(todayKey(),S);const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1200);}
@@ -730,6 +730,13 @@ async function renderMonth(){
   document.getElementById('snum').textContent=streak;
   document.getElementById('ssub').textContent=streak===0?'Log today to start your streak!':streak<7?streak+' day'+(streak>1?'s':'')+' strong — keep going!':streak<30?'Great consistency — '+streak+' days!':'Incredible — '+streak+' days!';
 }
+
+// Handle redirect result first (fires after returning from Google sign-in page)
+firebase.auth().getRedirectResult().catch(err=>{
+  console.error('Redirect sign-in error:', err);
+  const o=document.getElementById('auth-overlay');
+  o.style.display='flex';
+});
 
 firebase.auth().onAuthStateChanged(async user=>{
   const o=document.getElementById('auth-overlay');
