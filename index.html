@@ -224,6 +224,10 @@ input[type=range]{width:100%;margin:0 0 10px;accent-color:var(--gold);cursor:poi
     <div class="hero-date">
       <div class="weekday" id="day-name">—</div>
       <div class="fulldate" id="date-str">—</div>
+      <div id="db-status" style="display:none;align-items:center;gap:5px;margin-top:6px;">
+        <span id="db-dot" style="width:6px;height:6px;border-radius:50%;flex-shrink:0;"></span>
+        <span id="db-label" style="font-size:10px;letter-spacing:0.03em;"></span>
+      </div>
     </div>
     <button class="wbtn" id="wbtn" onclick="toggleWorkout()">
       <span class="dot"></span><span id="wlabel">Rest day</span>
@@ -743,6 +747,27 @@ async function renderMonth(){
   document.getElementById('ssub').textContent=streak===0?'Log today to start your streak!':streak<7?streak+' day'+(streak>1?'s':'')+' strong — keep going!':streak<30?'Great consistency — '+streak+' days!':'Incredible — '+streak+' days!';
 }
 
+function updateDbStatus(){
+  const wrap=document.getElementById('db-status');
+  const dot=document.getElementById('db-dot');
+  const lbl=document.getElementById('db-label');
+  if(!userId){wrap.style.display='none';return;}
+  wrap.style.display='flex';
+  if(navigator.onLine){
+    dot.style.background='var(--green)';
+    dot.style.boxShadow='0 0 5px var(--green)';
+    lbl.textContent='Connected';
+    lbl.style.color='var(--green)';
+  } else {
+    dot.style.background='var(--gold)';
+    dot.style.boxShadow='none';
+    lbl.textContent='Offline';
+    lbl.style.color='var(--muted)';
+  }
+}
+window.addEventListener('online', updateDbStatus);
+window.addEventListener('offline', updateDbStatus);
+
 // Handle redirect result first (fires after returning from Google sign-in page)
 firebase.auth().getRedirectResult().catch(err=>{
   console.error('Redirect sign-in error:', err);
@@ -756,9 +781,11 @@ firebase.auth().onAuthStateChanged(async user=>{
     userId=user.uid;
     o.style.display='none';
     S={checked:{},habits:{},isWorkout:false,steps:0};
+    updateDbStatus();
     await initApp();
   } else {
     userId=null;
+    updateDbStatus();
     o.style.display='flex';
   }
 });
